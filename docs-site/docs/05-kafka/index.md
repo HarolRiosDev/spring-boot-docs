@@ -1,6 +1,5 @@
 ---
 title: Mensajería con Kafka
-slug: /05-kafka
 ---
 
 # Mensajería con Kafka

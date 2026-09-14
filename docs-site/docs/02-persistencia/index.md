@@ -1,6 +1,5 @@
 ---
 title: Persistencia
-slug: /02-persistencia
 ---
 
 # Persistencia

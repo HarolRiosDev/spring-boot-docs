@@ -1,6 +1,5 @@
 ---
 title: Caché y Redis
-slug: /04-cache-redis
 ---
 
 # Caché y Redis

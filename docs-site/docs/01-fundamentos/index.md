@@ -1,6 +1,5 @@
 ---
 title: Fundamentos
-slug: /01-fundamentos
 ---
 
 # Fundamentos

@@ -33,6 +33,7 @@ const config = {
         docs: {
           sidebarPath: './sidebars.js',
           editUrl: 'https://github.com/TU_USUARIO/spring-boot-docs/tree/main/docs-site/',
+          numberPrefixParser: false,
         },
         blog: false,
         theme: {

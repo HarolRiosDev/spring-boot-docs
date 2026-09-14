@@ -1,6 +1,5 @@
 ---
 title: Seguridad y Auth
-slug: /03-security-jwt
 ---
 
 # Seguridad y Auth

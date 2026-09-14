@@ -1,6 +1,5 @@
 ---
 title: Bienvenida
-slug: /00-bienvenida
 ---
 
 # Spring Boot desde cero

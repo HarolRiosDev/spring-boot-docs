@@ -1,6 +1,5 @@
 ---
 title: Producción
-slug: /07-observabilidad
 ---
 
 # Producción

@@ -1,6 +1,5 @@
 ---
 title: Testing
-slug: /06-testing
 ---
 
 # Testing
