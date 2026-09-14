@@ -10,6 +10,8 @@
 
 **Spec:** [2026-09-14-fase0-fundacion-design.md](../specs/2026-09-14-fase0-fundacion-design.md)
 
+> **Nota de implementación (2026-09-14):** durante la ejecución de este plan, `start.spring.io` ya no ofrecía ninguna versión 3.x de Spring Boot (línea disponible `>=4.0.0`). El ejemplo `00-hello-world` se generó con `bootVersion=4.1.1` en su lugar. Dos consecuencias a tener en cuenta para fases futuras: (1) la versión del parent en `pom.xml` es `4.1.1` sin sufijo `.RELEASE` (ese sufijo se eliminó desde Spring Boot 2.0, no es específico de la 4.x); (2) `@AutoConfigureMockMvc` se movió de `org.springframework.boot.test.autoconfigure.web.servlet` a `org.springframework.boot.webmvc.test.autoconfigure`. Al generar el ejemplo de una fase futura, comprobar en start.spring.io la versión estable actual en vez de copiar literalmente `bootVersion=3.4.1` de los pasos de abajo.
+
 ## Global Constraints
 
 - Generador del sitio: **Docusaurus** (JavaScript, no TypeScript).
