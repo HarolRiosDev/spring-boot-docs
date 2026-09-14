@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: 02-persistencia
+  datasource:
+    url: jdbc:h2:mem:tasks;MODE=PostgreSQL
+    username: sa
+    password:
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
