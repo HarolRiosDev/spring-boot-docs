@@ -61,7 +61,7 @@ Cada `@ExceptionHandler` intercepta un tipo de excepción concreto, lanzada desd
 
 ## Un formato de error consistente
 
-Ambos manejadores devuelven una forma parecida (`status`, `message`, `timestamp`), para que quien consuma la API pueda parsear los errores de manera uniforme sin importar cuál ocurrió:
+Ambos manejadores devuelven una forma parecida (`status`, `message`, `timestamp`), para que quien consuma la API pueda parsear los errores de manera uniforme sin importar cuál ocurrió. Esta consistencia solo aplica a estos dos casos manejados explícitamente (`TaskNotFoundException` y `MethodArgumentNotValidException`): un error no contemplado aquí, como una ruta inexistente o un `GET /tasks/abc` con un id no numérico, cae en el manejo de errores por defecto de Spring, con una forma distinta.
 
 ```java
 public record ApiError(int status, String message, String timestamp) { /* ... */ }
