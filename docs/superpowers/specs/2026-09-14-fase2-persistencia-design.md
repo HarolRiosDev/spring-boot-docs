@@ -45,7 +45,7 @@ Dos cambios reales, que sí son el foco:
 
 **Base de datos:**
 - `docker-compose.yml` en la raíz del ejemplo: un único servicio Postgres (imagen `postgres:16`), puerto `5433` en el host (para no chocar con una instalación local de Postgres en el `5432` por defecto) mapeado al `5432` del contenedor, volumen nombrado para persistir datos entre reinicios.
-- Perfil por defecto (`application.yml`): datasource apuntando a `jdbc:postgresql://localhost:5433/tasks`, Flyway activado.
+- Perfil por defecto (`application.yml`): datasource apuntando a `jdbc:postgresql://localhost:5433/tasks`, Flyway activado, **`spring.jpa.hibernate.ddl-auto: validate`** explícito. Sin fijar esto, Hibernate podría intentar generar/alterar el esquema por su cuenta (especialmente en bases embebidas como H2, donde el valor por defecto de Spring Boot es `create-drop` incluso con Flyway presente) y entrar en conflicto con las migraciones — `validate` deja el esquema exclusivamente en manos de Flyway y solo comprueba que las entidades JPA coincidan con él, fallando rápido y con un mensaje claro si no coinciden. Mismo valor en el perfil `test`.
 - Migración Flyway `V1__create_tasks_table.sql`: crea la tabla `tasks` (id, titulo, descripcion, completada) con SQL compatible tanto con Postgres como con H2 en modo compatibilidad Postgres (para que la misma migración se pueda ejecutar en ambos motores sin duplicar SQL).
 
 **Tests:** perfil `test` (`application-test.yml`) con **H2 en memoria** en modo compatibilidad PostgreSQL — no Postgres real, no Testcontainers (eso es la Fase 6, explícitamente fuera de alcance aquí). Flyway corre igual contra H2, así que las migraciones reales quedan probadas, no solo el mapeo JPA. Mismos 9 casos MockMvc que la Fase 1 (crear válida/inválida, listar, obtener existente/no existente, actualizar existente/no existente, eliminar existente/no existente), con `@ActiveProfiles("test")`, sin necesitar Docker para `mvn test` ni en CI.
@@ -60,6 +60,7 @@ Dos cambios reales, que sí son el foco:
 - `mvn verify` pasa en `examples/02-persistencia` usando H2 (sin necesitar Docker), local y en CI.
 - `docker compose up` levanta Postgres correctamente y la app conecta contra él al ejecutarse con `./mvnw spring-boot:run` — **Docker no está disponible en el entorno donde se ejecutan los subagentes de este proyecto** (confirmado: `docker --version` → comando no encontrado), igual que no hubo navegador disponible en las Fases 0-1. Esta verificación queda genuinamente pendiente para un humano con Docker instalado; el plan debe declararlo explícitamente como un pendiente abierto (no simularlo ni darlo por bueno) y centrar la verificación automatizable en que `docker-compose.yml` sea sintácticamente válido y en que la suite de tests con H2 (que sí prueba las migraciones Flyway reales) pase limpia.
 - Las 4 páginas de contenido existen, en español, con código consistente con el ejemplo real.
+- Revisión del sidebar: la Fase 2 muestra sus 4 sub-páginas en el menú, en el orden correcto (Docker Compose y Postgres → Flyway → Spring Data JPA → Probar con datos reales).
 - `mvnw` commiteado con bit de ejecución correcto (verificado explícitamente, no dado por hecho).
 - `pom.xml` sin boilerplate vacío de Initializr.
 
