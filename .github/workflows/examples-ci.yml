@@ -1,0 +1,33 @@
+name: Examples CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'examples/**'
+      - '.github/workflows/examples-ci.yml'
+  pull_request:
+    paths:
+      - 'examples/**'
+      - '.github/workflows/examples-ci.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        example:
+          - 00-hello-world
+    defaults:
+      run:
+        working-directory: examples/${{ matrix.example }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: examples/${{ matrix.example }}/pom.xml
+      - name: Run tests
+        run: ./mvnw -B verify
