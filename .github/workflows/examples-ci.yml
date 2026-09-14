@@ -11,6 +11,9 @@ on:
       - 'examples/**'
       - '.github/workflows/examples-ci.yml'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
