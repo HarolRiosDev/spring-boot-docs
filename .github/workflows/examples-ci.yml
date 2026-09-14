@@ -22,6 +22,7 @@ jobs:
         example:
           - 00-hello-world
           - 01-fundamentos
+          - 02-persistencia
     defaults:
       run:
         working-directory: examples/${{ matrix.example }}
