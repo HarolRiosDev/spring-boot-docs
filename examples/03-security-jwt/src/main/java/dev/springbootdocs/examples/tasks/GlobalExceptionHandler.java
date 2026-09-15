@@ -42,4 +42,16 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(), "Datos de la petición inválidos", fieldErrors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+
+    @ExceptionHandler(TaskNotFoundException.class)
+    public ResponseEntity<ApiError> handleTaskNotFound(TaskNotFoundException ex) {
+        ApiError error = ApiError.of(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(TaskAccessDeniedException.class)
+    public ResponseEntity<ApiError> handleTaskAccessDenied(TaskAccessDeniedException ex) {
+        ApiError error = ApiError.of(HttpStatus.FORBIDDEN.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
 }
