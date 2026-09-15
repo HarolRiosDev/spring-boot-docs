@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: 03-security-jwt
+  datasource:
+    url: jdbc:postgresql://localhost:5434/tasks_security
+    username: tasks_security
+    password: tasks_security
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+app:
+  jwt:
+    secret: "local-dev-secret-please-change-in-production-0123456789abcdef"
+    expiration-millis: 3600000

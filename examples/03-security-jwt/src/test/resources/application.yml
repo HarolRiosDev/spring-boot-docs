@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: 03-security-jwt
+  datasource:
+    url: jdbc:h2:mem:tasks_security;MODE=PostgreSQL
+    username: sa
+    password:
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+app:
+  jwt:
+    secret: "test-secret-key-for-integration-tests-only-0123456789abcdef"
+    expiration-millis: 3600000
