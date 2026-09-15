@@ -71,3 +71,11 @@ La ventaja: si algo se rompe en el filtro JWT, en `SecurityConfig`, o en cómo s
 ## Sin Docker
 
 `./mvnw test` **no necesita Docker ni Postgres**. Igual que en la Fase 2, `src/test/resources/application.yml` apunta a H2 en modo compatibilidad PostgreSQL, y las mismas migraciones de Flyway (incluida la semilla del admin) se aplican también ahí — así que los tests de `AdminControllerTest` (login como `admin`/`admin12345`) comprueban de verdad que la migración `V3` sembró un hash válido, no uno que solo "parece" correcto.
+
+**¿Y si quieres arrancar la app de verdad (no solo los tests) sin Docker?** Hay un tercer perfil, `h2`, con H2 guardado en archivo (`data/tasks_security.mv.db`) en vez de en memoria, así que los datos sobreviven a un reinicio igual que con Postgres real:
+
+```bash
+SPRING_PROFILES_ACTIVE=h2 ./mvnw spring-boot:run
+```
+
+El login como `admin`/`admin12345` funciona igual (mismo hash de `V3__seed_admin_user.sql`), así como el resto del flujo — registro, tareas, `/admin/users`. No sustituye probar contra Postgres real, pero te deja explorar el API completo con solo el JDK instalado.

@@ -5,7 +5,7 @@ API REST de gestión de tareas — ejemplo ejecutable de la Fase 3 (Security/JWT
 ## Requisitos
 
 - JDK 21 o superior.
-- Docker (para levantar Postgres). Los tests NO necesitan Docker — usan H2 en memoria automáticamente.
+- Docker (para levantar Postgres) — **opcional**, ver [Sin Docker](#sin-docker-perfil-h2) más abajo si no lo tienes instalado.
 
 ## Levantar la base de datos
 
@@ -25,6 +25,16 @@ Flyway crea el esquema y siembra un usuario administrador al arrancar:
 
 - **username:** `admin`
 - **password:** `admin12345`
+
+## Sin Docker (perfil `h2`)
+
+¿No tienes Docker instalado o no quieres levantar un contenedor solo para probar esto? El perfil `h2` ejecuta la app contra una base H2 guardada en un archivo local (`data/tasks_security.mv.db`, ya en `.gitignore`) en vez de Postgres — mismas migraciones de Flyway (incluida la semilla del usuario `admin`), y los datos sobreviven a un reinicio igual que con Postgres real:
+
+```bash
+SPRING_PROFILES_ACTIVE=h2 ./mvnw spring-boot:run
+```
+
+Esto es distinto del H2 que usan los tests (`src/test/resources/application.yml`, en memoria, se borra en cada `./mvnw test`); este otro (`src/main/resources/application-h2.yml`) escribe a disco para que puedas explorar el API completo (registro, login, tareas, endpoint admin) con solo el JDK instalado — no sustituye probar contra Postgres real.
 
 ## Endpoints
 
