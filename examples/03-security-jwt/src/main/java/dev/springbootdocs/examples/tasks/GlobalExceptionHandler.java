@@ -22,7 +22,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiError> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
-        ApiError error = ApiError.of(HttpStatus.CONFLICT.value(), "Ya existe un usuario con ese nombre");
+        ApiError error = ApiError.of(
+                HttpStatus.CONFLICT.value(), "Conflicto de datos: la operación viola una restricción de la base de datos");
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 

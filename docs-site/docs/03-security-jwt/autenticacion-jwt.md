@@ -73,6 +73,10 @@ public class JwtService {
 
 Usamos la librería [`jjwt`](https://github.com/jwtk/jjwt) para construir y firmar el token con una clave HMAC (simétrica: la misma clave firma y verifica, guardada en `application.yml` como `app.jwt.secret`, nunca en el código). El `subject` es el username; el claim `"role"` viaja también en el token, pero es solo informativo — como verás en [Roles y autorización](./roles-y-autorizacion), la autorización real no confía en ese claim.
 
+:::caution Secreto en un proyecto real
+Que el secreto no esté escrito en el código Java no basta: no debe llegar tampoco en texto plano al repositorio. El `application.yml` de este ejemplo lo define como `secret: "${JWT_SECRET:local-dev-secret-please-change-in-production-0123456789abcdef}"` — la sintaxis `${VAR:valor-por-defecto}` de Spring lee la variable de entorno `JWT_SECRET` si existe, y solo cae al valor local de desarrollo cuando no se define. En un despliegue real, `JWT_SECRET` se inyecta desde el entorno (o un gestor de secretos) y nunca se comitea.
+:::
+
 ## Validar el token en cada petición
 
 Un filtro propio se ejecuta antes que el resto de Spring Security en cada petición:
@@ -108,4 +112,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 `OncePerRequestFilter` garantiza que el filtro corre exactamente una vez por petición. Si el header `Authorization` trae un `Bearer <token>` válido, el filtro rellena el `SecurityContextHolder` — de ahí en adelante, para el resto de la petición (controllers incluidos), Spring Security actúa como si el usuario se hubiera autenticado de la forma tradicional. Si no hay token, o es inválido, simplemente no se rellena nada y la petición sigue: será `authorizeHttpRequests` (o `@PreAuthorize`) quien la rechace más adelante si el endpoint requería autenticación.
 
-Registrado en `SecurityConfig` con `addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)` — se ejecuta antes que el filtro estándar de usuario/contraseña de Spring Security, que en nuestro caso no llega a usarse para peticiones normales (solo lo usa `authenticationManager.authenticate(...)` en `/auth/login`).
+Registrado en `SecurityConfig` con `addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)`. Ese `UsernamePasswordAuthenticationFilter` no está realmente en la cadena de filtros en este proyecto — nunca se activa (`SecurityConfig` no llama a `formLogin()`), así que su clase solo se usa aquí como punto de referencia de orden ("mi filtro corre antes de donde iría ese filtro, si existiera"), no porque intervenga en ninguna petición. El login (`/auth/login`) tampoco pasa por él: va directo a través de `authenticationManager.authenticate(...)` dentro de `AuthController`.

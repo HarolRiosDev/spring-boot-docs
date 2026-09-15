@@ -26,18 +26,18 @@ public class TaskController {
     public ResponseEntity<TaskResponse> create(
             @Valid @RequestBody TaskRequest request,
             @AuthenticationPrincipal UserPrincipal principal) {
-        Task created = taskService.create(request, principal.getUser());
-        return ResponseEntity.status(HttpStatus.CREATED).body(TaskResponse.from(created));
+        TaskResponse created = taskService.create(request, principal.getUser());
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @GetMapping("/tasks")
     public List<TaskResponse> findAll(@AuthenticationPrincipal UserPrincipal principal) {
-        return taskService.findAll(principal.getUser()).stream().map(TaskResponse::from).toList();
+        return taskService.findAll(principal.getUser());
     }
 
     @GetMapping("/tasks/{id}")
     public TaskResponse findById(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal principal) {
-        return TaskResponse.from(taskService.findById(id, principal.getUser()));
+        return taskService.findById(id, principal.getUser());
     }
 
     @PutMapping("/tasks/{id}")
@@ -45,7 +45,7 @@ public class TaskController {
             @PathVariable Long id,
             @Valid @RequestBody TaskRequest request,
             @AuthenticationPrincipal UserPrincipal principal) {
-        return TaskResponse.from(taskService.update(id, request, principal.getUser()));
+        return taskService.update(id, request, principal.getUser());
     }
 
     @DeleteMapping("/tasks/{id}")

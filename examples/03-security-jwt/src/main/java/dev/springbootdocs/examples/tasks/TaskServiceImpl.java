@@ -15,42 +15,53 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public Task create(TaskRequest request, User currentUser) {
+    public TaskResponse create(TaskRequest request, User currentUser) {
         Task task = new Task(request.titulo(), request.descripcion(), request.completada(), currentUser);
-        return taskRepository.save(task);
+        return TaskResponse.from(taskRepository.save(task));
     }
 
     @Override
-    public List<Task> findAll(User currentUser) {
-        if (currentUser.getRole() == Role.ADMIN) {
-            return taskRepository.findAll();
-        }
-        return taskRepository.findByUser(currentUser);
+    @Transactional(readOnly = true)
+    public List<TaskResponse> findAll(User currentUser) {
+        List<Task> tasks = currentUser.getRole() == Role.ADMIN
+                ? taskRepository.findAll()
+                : taskRepository.findByUser(currentUser);
+        return tasks.stream().map(TaskResponse::from).toList();
     }
 
     @Override
-    public Task findById(Long id, User currentUser) {
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new TaskNotFoundException(id));
-        requireAccess(task, currentUser);
-        return task;
+    @Transactional(readOnly = true)
+    public TaskResponse findById(Long id, User currentUser) {
+        return TaskResponse.from(getTaskForCurrentUser(id, currentUser));
     }
 
     @Override
     @Transactional
-    public Task update(Long id, TaskRequest request, User currentUser) {
-        Task task = findById(id, currentUser);
+    public TaskResponse update(Long id, TaskRequest request, User currentUser) {
+        Task task = getTaskForCurrentUser(id, currentUser);
         task.setTitulo(request.titulo());
         task.setDescripcion(request.descripcion());
         task.setCompletada(request.completada());
-        return taskRepository.save(task);
+        return TaskResponse.from(taskRepository.save(task));
     }
 
     @Override
     @Transactional
     public void delete(Long id, User currentUser) {
-        Task task = findById(id, currentUser);
+        Task task = getTaskForCurrentUser(id, currentUser);
         taskRepository.delete(task);
+    }
+
+    /**
+     * Looks up the task and enforces the ownership/admin check, returning the mutable
+     * entity for callers (update/delete) that need to modify or remove it. The public
+     * findById maps this to a TaskResponse instead of exposing the entity directly.
+     */
+    private Task getTaskForCurrentUser(Long id, User currentUser) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException(id));
+        requireAccess(task, currentUser);
+        return task;
     }
 
     private void requireAccess(Task task, User currentUser) {

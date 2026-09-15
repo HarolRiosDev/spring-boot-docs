@@ -10,11 +10,12 @@ import org.springframework.http.ResponseEntity;
 class GlobalExceptionHandlerTest {
 
     /**
-     * Regression test for the TOCTOU race in AuthController#register: two concurrent
-     * registrations with the same username can both pass the existsByUsername check
-     * before either saves, so the second save throws DataIntegrityViolationException
-     * when it hits the database's unique constraint. This verifies the safety-net
-     * handler maps that exception to 409 Conflict instead of an unhandled 500.
+     * This handler is a global safety net for ANY database constraint violation that
+     * slips past application-level validation (e.g. the TOCTOU race in
+     * AuthController#register, where two concurrent registrations with the same
+     * username can both pass the existsByUsername check before either saves). It
+     * verifies the handler maps DataIntegrityViolationException to 409 Conflict with a
+     * generic message, instead of an unhandled 500 or a message specific to one caller.
      */
     @Test
     void handleDataIntegrityViolation_returnsConflict() {
@@ -26,6 +27,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().status()).isEqualTo(HttpStatus.CONFLICT.value());
-        assertThat(response.getBody().message()).isEqualTo("Ya existe un usuario con ese nombre");
+        assertThat(response.getBody().message())
+                .isEqualTo("Conflicto de datos: la operación viola una restricción de la base de datos");
     }
 }

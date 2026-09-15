@@ -13,5 +13,5 @@ spring:
 
 app:
   jwt:
-    secret: "local-dev-secret-please-change-in-production-0123456789abcdef"
+    secret: "${JWT_SECRET:local-dev-secret-please-change-in-production-0123456789abcdef}"
     expiration-millis: 3600000

@@ -199,6 +199,21 @@ class TaskControllerTest {
     }
 
     @Test
+    void createTask_withTituloOverMaxLength_returnsBadRequest() throws Exception {
+        String token = registerAndLogin("victor");
+        String tituloTooLong = "a".repeat(256);
+        String json = objectMapper.writeValueAsString(new TaskRequest(tituloTooLong, "desc", false));
+
+        mockMvc.perform(post("/tasks")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.errors.titulo").exists());
+    }
+
+    @Test
     void accessProtectedEndpoint_withTamperedToken_returnsUnauthorized() throws Exception {
         String token = registerAndLogin("uma");
         String tampered = token.substring(0, token.length() - 2) + "xx";
