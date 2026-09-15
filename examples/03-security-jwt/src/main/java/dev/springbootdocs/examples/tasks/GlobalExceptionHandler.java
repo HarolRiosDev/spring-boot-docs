@@ -2,6 +2,7 @@ package dev.springbootdocs.examples.tasks;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,6 +17,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameAlreadyExistsException.class)
     public ResponseEntity<ApiError> handleUsernameExists(UsernameAlreadyExistsException ex) {
         ApiError error = ApiError.of(HttpStatus.CONFLICT.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiError> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        ApiError error = ApiError.of(HttpStatus.CONFLICT.value(), "Ya existe un usuario con ese nombre");
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
