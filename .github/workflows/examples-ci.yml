@@ -23,6 +23,7 @@ jobs:
           - 00-hello-world
           - 01-fundamentos
           - 02-persistencia
+          - 03-security-jwt
     defaults:
       run:
         working-directory: examples/${{ matrix.example }}
