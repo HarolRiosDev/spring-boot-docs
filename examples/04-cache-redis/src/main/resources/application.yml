@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: 04-cache-redis
+  datasource:
+    url: jdbc:postgresql://localhost:5435/tasks_cache
+    username: tasks_cache
+    password: tasks_cache
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+app:
+  jwt:
+    secret: "${JWT_SECRET:local-dev-secret-please-change-in-production-0123456789abcdef}"
+    expiration-millis: 3600000
