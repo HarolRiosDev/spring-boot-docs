@@ -13,10 +13,13 @@ Spring Cache es una **abstracción**: un conjunto de anotaciones (`@Cacheable`, 
 @Configuration
 @EnableCaching
 public class CacheConfig {
+    // ...
 }
 ```
 
 `@EnableCaching` no es opcional ni implícito por tener `spring-boot-starter-cache` en el `pom.xml` — a diferencia de otras auto-configuraciones de Spring Boot, esta es opt-in deliberado. Sin esta anotación, `@Cacheable`/`@CacheEvict` se ignoran silenciosamente: no hay ningún error, simplemente nunca se cachea nada.
+
+El `// ...` no es cosmético: esta misma clase `CacheConfig` también define, en la práctica, el `@Bean` que configura Redis como backend — TTL, serialización JSON — que se muestra completo en [Redis como backend](./redis-como-backend). Aquí se omite a propósito porque esta página cubre solo la parte que no depende del backend.
 
 ## `@Cacheable`
 

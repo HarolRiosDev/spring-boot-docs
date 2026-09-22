@@ -58,6 +58,33 @@ PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()
 
 La alternativa más corta, `enableUnsafeDefaultTyping()` (sin validador), acepta reconstruir *cualquier* clase del classpath a partir de ese campo de tipo — el nombre "unsafe" no es decorativo: es la puerta clásica de una deserialización insegura si Redis dejara de ser, algún día, un almacén exclusivo de esta app. Acotar el validador al propio paquete evita ese riesgo sin perder la funcionalidad que hace falta aquí.
 
+## Todo junto: el `@Bean` en `CacheConfig`
+
+Los tres fragmentos anteriores (`typeValidator`, `valueSerializer`, `cacheConfiguration`) no son código suelto — son variables locales de un mismo método, dentro de la misma clase `CacheConfig` que ya vimos en [Spring Cache básico](./spring-cache-basico) con `@EnableCaching`. Esta es la clase completa, con el `@Bean` que faltaba en esa página:
+
+```java
+@Configuration
+@EnableCaching
+public class CacheConfig {
+
+    @Bean
+    public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
+        PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType("dev.springbootdocs.examples.tasks.")
+                .build();
+        GenericJacksonJsonRedisSerializer valueSerializer = GenericJacksonJsonRedisSerializer.builder()
+                .enableDefaultTyping(typeValidator)
+                .build();
+        RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(10))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(valueSerializer));
+        return builder -> builder.cacheDefaults(cacheConfiguration);
+    }
+}
+```
+
+La línea que de verdad conecta todo es la última: `return builder -> builder.cacheDefaults(cacheConfiguration);`. `RedisCacheManagerBuilderCustomizer` es una interfaz funcional que Spring Boot invoca durante el arranque, pasándole el `RedisCacheManager.RedisCacheManagerBuilder` que está a punto de construir el `CacheManager` autoconfigurado; `cacheDefaults(cacheConfiguration)` le dice a ese builder "usa esta configuración —con su TTL y su serializador JSON— como valor por defecto para cualquier caché declarada con `@Cacheable`". Sin devolver ese lambda, las tres variables locales quedarían construidas pero nunca aplicadas: `RedisCacheManager` seguiría usando sus valores por defecto (sin TTL, con `JdkSerializationRedisSerializer`).
+
 ## Un gotcha de nombres, no de diseño
 
 Dos parejas de clases con el mismo nombre simple conviven en el classpath de este proyecto y es fácil importar la equivocada:
