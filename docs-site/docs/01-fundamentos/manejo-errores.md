@@ -1,6 +1,6 @@
 ---
 title: Manejo de errores
-sidebar_position: 5
+sidebar_position: 6
 ---
 
 # Manejo de errores

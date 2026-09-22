@@ -8,11 +8,12 @@ Esta fase cubre lo esencial de Spring Boot antes de tocar temas más avanzados: 
 
 ## Contenido
 
-1. [Inyección de dependencias y beans](./inyeccion-dependencias)
-2. [Controladores REST](./controladores-rest)
-3. [Capas: controller → service → repository](./capas)
-4. [Validación](./validacion)
-5. [Manejo de errores](./manejo-errores)
+1. [¿Qué es Spring Boot?](./que-es-spring-boot)
+2. [Inyección de dependencias y beans](./inyeccion-dependencias)
+3. [Controladores REST](./controladores-rest)
+4. [Capas: controller → service → repository](./capas)
+5. [Validación](./validacion)
+6. [Manejo de errores](./manejo-errores)
 
 ## Ejemplo ejecutable
 
