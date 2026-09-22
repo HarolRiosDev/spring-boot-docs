@@ -80,4 +80,6 @@ redis-cli -n 0 keys "tasks::*"
 redis-cli -n 0 get "tasks::1"
 ```
 
-Tras un `GET /tasks/1`, debería aparecer una clave `tasks::1` con el JSON de la tarea (gracias a `GenericJacksonJsonRedisSerializer`, ver [Redis como backend](./redis-como-backend)); tras un `PUT`/`DELETE` sobre esa misma tarea, la clave desaparece. Este entorno no tiene Docker disponible, así que esta verificación —junto con confirmar que `Task.user` (una relación lazy de Hibernate) serializa correctamente hacia JSON real— queda documentada como pendiente explícito para quien continúe este proyecto con Docker instalado.
+Tras un `GET /tasks/1`, debería aparecer una clave `tasks::1` con el JSON de la tarea (gracias a `GenericJacksonJsonRedisSerializer`, ver [Redis como backend](./redis-como-backend)); tras un `PUT`/`DELETE` sobre esa misma tarea, la clave desaparece. El JSON que aparece ahí incluye el `user` de la tarea, pero **no** su contraseña: el getter lleva `@JsonIgnore` precisamente porque este Redis de ejemplo corre sin autenticación y nada aguas abajo necesita el hash. Que ese `user` sea un `User` real y no un proxy perezoso es lo que garantiza el `join fetch` de `findByIdWithUser` (ver [Spring Cache básico](./spring-cache-basico)); ambas cosas están cubiertas por un test unitario de serialización (`CacheValueSerializationTest`) que ejercita el mismo serializador sin necesitar Redis.
+
+Este entorno no tiene Docker disponible, así que la comprobación contra un Redis de verdad queda documentada como pendiente explícito para quien continúe este proyecto con Docker instalado.

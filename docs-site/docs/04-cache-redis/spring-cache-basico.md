@@ -35,13 +35,15 @@ public class CachedTaskLookup {
 
     @Cacheable(value = "tasks", key = "#id")
     public Task findById(Long id) {
-        return taskRepository.findById(id)
+        return taskRepository.findByIdWithUser(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
     }
 }
 ```
 
 `value = "tasks"` es el nombre de la caché (puede haber varias, cada una con su propia configuración); `key = "#id"` dice qué parte de los argumentos identifica la entrada — aquí, el id de la tarea. La primera llamada con un `id` dado ejecuta el método normalmente y guarda el resultado; las siguientes llamadas con el mismo `id` devuelven el valor guardado sin ejecutar el cuerpo del método — ni la consulta a `taskRepository` se dispara. Si el método lanza una excepción (por ejemplo `TaskNotFoundException`), no se cachea nada: solo se guardan retornos normales.
+
+Y una decisión que parece un detalle y no lo es: el método llama a `findByIdWithUser(id)`, una consulta propia del repositorio (`select t from Task t join fetch t.user where t.id = :id`), y no al `findById` que `JpaRepository` ya da gratis. El motivo es que **lo que devuelve un método `@Cacheable` es exactamente lo que se guarda en la caché**, y `Task.user` es una relación `LAZY`: con `findById` a secas, ese `user` sería todavía un proxy de Hibernate sin cargar. En la caché en memoria de los tests eso pasa desapercibido, pero contra Redis el valor se serializa a JSON, y un proxy perezoso no sobrevive a ese viaje (su clase real es una subclase sintética generada en tiempo de ejecución, que no existe al volver a leer la entrada). El `join fetch` garantiza que lo que se cachea es un `User` real y ya cargado. `Task.user` sigue siendo `LAZY` por defecto para todo lo demás: la carga ansiosa está acotada al único camino que acaba en la caché.
 
 ## La trampa de la auto-invocación
 

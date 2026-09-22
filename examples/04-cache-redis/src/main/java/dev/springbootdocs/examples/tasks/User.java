@@ -1,5 +1,7 @@
 package dev.springbootdocs.examples.tasks;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,6 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
 
     @Id
@@ -44,6 +47,12 @@ public class User {
         return username;
     }
 
+    /**
+     * {@code @JsonIgnore} para que el hash nunca salga en JSON — ni en una respuesta HTTP ni,
+     * sobre todo, dentro del {@code Task} que se guarda serializado en Redis. La autenticacion
+     * sigue leyendolo en Java ({@code UserPrincipal}), que no pasa por Jackson.
+     */
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
