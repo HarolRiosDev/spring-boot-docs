@@ -10,8 +10,8 @@ Con Postgres, Flyway, la entidad y el repositorio ya en su sitio, así es como s
 ## Levantar la base de datos y la aplicación
 
 ```bash
-docker compose up -d
 cd examples/02-persistencia
+docker compose up -d
 ./mvnw spring-boot:run
 ```
 

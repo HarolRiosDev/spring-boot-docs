@@ -23,7 +23,7 @@ Está pensado para alguien que **ya sabe Java** (POO, colecciones, algo de lambd
 | 1 | Fundamentos: DI, beans, REST, capas, validación, manejo de errores | `01-fundamentos` |
 | 2 | Persistencia: Spring Data JPA, Postgres, Flyway | `02-persistencia` |
 | 3 | Seguridad y Auth: Spring Security, JWT, roles | `03-security-jwt` |
-| 4 | Caché y Redis | `04-cache-redis` |
+| 4 | Caché y Redis: Spring Cache, Redis, invalidación | `04-cache-redis` |
 | 5 | Mensajería con Kafka | `05-kafka` |
 | 6 | Testing: JUnit, Mockito, Testcontainers | `06-testing` |
 | 7 | Producción: Actuator, métricas, logging, Docker | `07-observabilidad` |

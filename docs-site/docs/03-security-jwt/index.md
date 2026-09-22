@@ -18,7 +18,7 @@ Hasta ahora, cualquiera podía llamar al API de tareas de las Fases 1-2 sin iden
 Todo el código de esta fase vive en [`examples/03-security-jwt`](https://github.com/TU_USUARIO/spring-boot-docs/tree/main/examples/03-security-jwt): la misma API de tareas de la Fase 2, ahora protegida.
 
 ```bash
-docker compose up -d
 cd examples/03-security-jwt
+docker compose up -d
 ./mvnw spring-boot:run
 ```

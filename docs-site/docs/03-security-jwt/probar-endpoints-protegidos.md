@@ -10,8 +10,8 @@ Con todo conectado, así es como se usa el API de principio a fin.
 ## Levantar la base de datos y la aplicación
 
 ```bash
-docker compose up -d
 cd examples/03-security-jwt
+docker compose up -d
 ./mvnw spring-boot:run
 ```
 

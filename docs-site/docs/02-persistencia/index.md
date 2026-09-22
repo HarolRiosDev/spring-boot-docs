@@ -18,7 +18,7 @@ En la [Fase 1](/docs/01-fundamentos) guardábamos las tareas en un mapa en memor
 Todo el código de esta fase vive en [`examples/02-persistencia`](https://github.com/TU_USUARIO/spring-boot-docs/tree/main/examples/02-persistencia): la misma API de tareas de la Fase 1, ahora respaldada por Postgres.
 
 ```bash
-docker compose up -d
 cd examples/02-persistencia
+docker compose up -d
 ./mvnw spring-boot:run
 ```
