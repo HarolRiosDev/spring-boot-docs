@@ -110,4 +110,4 @@ Con constructor (a mano o generado por Lombok) el objeto queda siempre en un est
 
 `TaskServiceImpl` depende de la interfaz `TaskRepository`, no de la clase concreta `InMemoryTaskRepository`. Esto es lo que hace que la inyección de dependencias tenga sentido: en el futuro (Fase 2) podremos sustituir `InMemoryTaskRepository` por una implementación respaldada por una base de datos real, sin tocar ni una línea de `TaskServiceImpl`.
 
-Puedes ver el patrón completo en [`examples/01-fundamentos`](https://github.com/TU_USUARIO/spring-boot-docs/tree/main/examples/01-fundamentos): `TaskController` depende de `TaskService`, y `TaskServiceImpl` depende de `TaskRepository` — cada capa solo conoce la interfaz de la capa siguiente.
+Puedes ver el patrón completo en [`examples/01-fundamentos`](https://github.com/HarolRiosDev/spring-boot-docs/tree/main/examples/01-fundamentos): `TaskController` depende de `TaskService`, y `TaskServiceImpl` depende de `TaskRepository` — cada capa solo conoce la interfaz de la capa siguiente.

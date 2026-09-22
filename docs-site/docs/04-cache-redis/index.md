@@ -15,7 +15,7 @@ Hasta ahora, cada `GET /tasks/{id}` de las Fases 1-3 volvía a consultar la base
 
 ## Ejemplo ejecutable
 
-Todo el código de esta fase vive en [`examples/04-cache-redis`](https://github.com/TU_USUARIO/spring-boot-docs/tree/main/examples/04-cache-redis): la misma API de tareas de la Fase 3 (autenticación JWT, roles, ownership), ahora con caché sobre las lecturas.
+Todo el código de esta fase vive en [`examples/04-cache-redis`](https://github.com/HarolRiosDev/spring-boot-docs/tree/main/examples/04-cache-redis): la misma API de tareas de la Fase 3 (autenticación JWT, roles, ownership), ahora con caché sobre las lecturas.
 
 ```bash
 cd examples/04-cache-redis

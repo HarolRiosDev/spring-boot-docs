@@ -11,10 +11,10 @@ const config = {
     v4: true,
   },
 
-  url: 'https://TU_USUARIO.github.io',
+  url: 'https://HarolRiosDev.github.io',
   baseUrl: '/spring-boot-docs/',
 
-  organizationName: 'TU_USUARIO',
+  organizationName: 'HarolRiosDev',
   projectName: 'spring-boot-docs',
 
   onBrokenLinks: 'throw',
@@ -32,7 +32,7 @@ const config = {
       ({
         docs: {
           sidebarPath: './sidebars.js',
-          editUrl: 'https://github.com/TU_USUARIO/spring-boot-docs/tree/main/docs-site/',
+          editUrl: 'https://github.com/HarolRiosDev/spring-boot-docs/tree/main/docs-site/',
           numberPrefixParser: false,
         },
         blog: false,
@@ -75,7 +75,7 @@ const config = {
             label: 'Documentación',
           },
           {
-            href: 'https://github.com/TU_USUARIO/spring-boot-docs',
+            href: 'https://github.com/HarolRiosDev/spring-boot-docs',
             label: 'GitHub',
             position: 'right',
           },
@@ -98,15 +98,15 @@ const config = {
             items: [
               {
                 label: 'Repositorio',
-                href: 'https://github.com/TU_USUARIO/spring-boot-docs',
+                href: 'https://github.com/HarolRiosDev/spring-boot-docs',
               },
               {
                 label: 'Ejemplos ejecutables',
-                href: 'https://github.com/TU_USUARIO/spring-boot-docs/tree/main/examples',
+                href: 'https://github.com/HarolRiosDev/spring-boot-docs/tree/main/examples',
               },
               {
                 label: 'Licencia (MIT)',
-                href: 'https://github.com/TU_USUARIO/spring-boot-docs/blob/main/LICENSE',
+                href: 'https://github.com/HarolRiosDev/spring-boot-docs/blob/main/LICENSE',
               },
             ],
           },

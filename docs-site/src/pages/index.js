@@ -72,7 +72,7 @@ function HomepageHeader() {
           </Link>
           <Link
             className="button button--lg button--outline button--secondary"
-            href="https://github.com/TU_USUARIO/spring-boot-docs">
+            href="https://github.com/HarolRiosDev/spring-boot-docs">
             Ver en GitHub
           </Link>
         </div>

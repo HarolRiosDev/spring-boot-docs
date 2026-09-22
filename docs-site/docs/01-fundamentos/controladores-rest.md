@@ -62,4 +62,4 @@ public ResponseEntity<Void> delete(@PathVariable Long id) {
 
 `ResponseEntity.noContent().build()` devuelve **204 No Content**, el código estándar para "operación completada, sin cuerpo que devolver". `ResponseEntity.status(HttpStatus.CREATED)` (en el ejemplo de crear) devuelve **201 Created**.
 
-El controlador completo, con los cinco endpoints (`POST`, `GET` lista, `GET` por id, `PUT`, `DELETE`), está en [`TaskController.java`](https://github.com/TU_USUARIO/spring-boot-docs/tree/main/examples/01-fundamentos/src/main/java/dev/springbootdocs/examples/tasks/TaskController.java).
+El controlador completo, con los cinco endpoints (`POST`, `GET` lista, `GET` por id, `PUT`, `DELETE`), está en [`TaskController.java`](https://github.com/HarolRiosDev/spring-boot-docs/tree/main/examples/01-fundamentos/src/main/java/dev/springbootdocs/examples/tasks/TaskController.java).

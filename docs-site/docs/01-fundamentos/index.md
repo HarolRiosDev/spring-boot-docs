@@ -17,7 +17,7 @@ Esta fase cubre lo esencial de Spring Boot antes de tocar temas más avanzados: 
 
 ## Ejemplo ejecutable
 
-Todo el código de esta fase vive en [`examples/01-fundamentos`](https://github.com/TU_USUARIO/spring-boot-docs/tree/main/examples/01-fundamentos): una API REST de gestión de tareas (crear, listar, consultar, actualizar y eliminar), construida capa por capa según se explica en las páginas de arriba.
+Todo el código de esta fase vive en [`examples/01-fundamentos`](https://github.com/HarolRiosDev/spring-boot-docs/tree/main/examples/01-fundamentos): una API REST de gestión de tareas (crear, listar, consultar, actualizar y eliminar), construida capa por capa según se explica en las páginas de arriba.
 
 ```bash
 cd examples/01-fundamentos

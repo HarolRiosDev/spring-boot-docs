@@ -15,7 +15,7 @@ En la [Fase 1](/docs/01-fundamentos) guardábamos las tareas en un mapa en memor
 
 ## Ejemplo ejecutable
 
-Todo el código de esta fase vive en [`examples/02-persistencia`](https://github.com/TU_USUARIO/spring-boot-docs/tree/main/examples/02-persistencia): la misma API de tareas de la Fase 1, ahora respaldada por Postgres.
+Todo el código de esta fase vive en [`examples/02-persistencia`](https://github.com/HarolRiosDev/spring-boot-docs/tree/main/examples/02-persistencia): la misma API de tareas de la Fase 1, ahora respaldada por Postgres.
 
 ```bash
 cd examples/02-persistencia

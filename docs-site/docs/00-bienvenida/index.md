@@ -13,7 +13,7 @@ Está pensado para alguien que **ya sabe Java** (POO, colecciones, algo de lambd
 ## Cómo está organizado
 
 - 📖 La documentación de cada tema vive en este sitio, en el menú de la izquierda.
-- 💻 Los ejemplos ejecutables viven en la carpeta [`examples/`](https://github.com/TU_USUARIO/spring-boot-docs/tree/main/examples) del repositorio — un proyecto Maven independiente por tema, para que puedas clonar solo la carpeta que te interesa.
+- 💻 Los ejemplos ejecutables viven en la carpeta [`examples/`](https://github.com/HarolRiosDev/spring-boot-docs/tree/main/examples) del repositorio — un proyecto Maven independiente por tema, para que puedas clonar solo la carpeta que te interesa.
 
 ## Ruta sugerida
 

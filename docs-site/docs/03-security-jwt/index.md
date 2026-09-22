@@ -15,7 +15,7 @@ Hasta ahora, cualquiera podía llamar al API de tareas de las Fases 1-2 sin iden
 
 ## Ejemplo ejecutable
 
-Todo el código de esta fase vive en [`examples/03-security-jwt`](https://github.com/TU_USUARIO/spring-boot-docs/tree/main/examples/03-security-jwt): la misma API de tareas de la Fase 2, ahora protegida.
+Todo el código de esta fase vive en [`examples/03-security-jwt`](https://github.com/HarolRiosDev/spring-boot-docs/tree/main/examples/03-security-jwt): la misma API de tareas de la Fase 2, ahora protegida.
 
 ```bash
 cd examples/03-security-jwt
