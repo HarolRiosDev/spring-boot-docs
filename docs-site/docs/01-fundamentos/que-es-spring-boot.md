@@ -21,6 +21,10 @@ Spring Boot no es un lenguaje nuevo ni una plataforma aparte — es una capa sob
 
 En este sitio vas a ver constantemente el mismo patrón: "añade una dependencia (un *starter*) al `pom.xml`, y Spring Boot autoconfigura lo necesario" — es la idea central detrás de casi todo lo que se explica en las fases siguientes.
 
+## Dónde se crea un proyecto Spring Boot
+
+**[start.spring.io](https://start.spring.io)** (Spring Initializr) genera el esqueleto de un proyecto nuevo: eliges lenguaje, versión de Java, tipo de build (Maven o Gradle) y qué *starters* necesitas (marcando casillas como "Spring Web" o "Spring Data JPA") — y descargas un `.zip` ya listo para abrir, con el `pom.xml` correcto y una clase `@SpringBootApplication` de arranque. Así se generó, de hecho, cada uno de los ejemplos ejecutables de este sitio. No hace falta usarlo ahora mismo — pero cuando quieras probar algo por tu cuenta fuera de este sitio, es el punto de partida habitual.
+
 ## API vs. librería
 
 Otra distinción que aparece constantemente y conviene tener clara desde ahora, porque este sitio usa ambas palabras con su significado más habitual en un equipo backend:
