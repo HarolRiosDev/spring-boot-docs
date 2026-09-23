@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/tasks_testing;MODE=PostgreSQL
+    username: sa
+    password:
+  cache:
+    type: simple
