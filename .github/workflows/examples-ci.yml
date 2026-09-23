@@ -25,6 +25,7 @@ jobs:
           - 02-persistencia
           - 03-security-jwt
           - 04-cache-redis
+          - 06-testing
     defaults:
       run:
         working-directory: examples/${{ matrix.example }}
