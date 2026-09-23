@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: 05-kafka
+  datasource:
+    url: jdbc:postgresql://localhost:5437/tasks_kafka
+    username: tasks_kafka
+    password: tasks_kafka
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  kafka:
+    bootstrap-servers: localhost:9092
+
+app:
+  jwt:
+    secret: "${JWT_SECRET:local-dev-secret-please-change-in-production-0123456789abcdef}"
+    expiration-millis: 3600000
