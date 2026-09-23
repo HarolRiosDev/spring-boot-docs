@@ -13,7 +13,7 @@ Un test **unitario** con Mockito tiene sentido cuando la clase bajo prueba tiene
 
 Un test de **integración** (lo ya conocido: `@SpringBootTest` + MockMvc) tiene sentido cuando lo que hay que confirmar es que las piezas están bien conectadas — que Spring Security bloquea lo que debe bloquear, que una consulta JPA devuelve lo que la anotación dice que devuelve, que la serialización JSON no rompe nada. Eso no se puede mockear: hay que ejercitarlo de verdad.
 
-`TaskServiceImpl.findById` es un buen candidato para Mockito: la lógica de ownership (¿puede este usuario ver esta tarea?) vive enteramente en Java, sin tocar la base de datos directamente — solo llama a `CachedTaskLookup`, una interfaz de una línea fácil de sustituir. Hasta ahora esa lógica solo se había probado indirectamente, vía HTTP con todo el contexto real.
+`TaskServiceImpl.findById` es un buen candidato para Mockito: la lógica de ownership (¿puede este usuario ver esta tarea?) vive enteramente en Java, sin tocar la base de datos directamente — solo llama a `CachedTaskLookup`, una clase de una línea fácil de sustituir (`@Component`, no una interfaz — Mockito mockea clases concretas no-`final` igual de bien que interfaces). Hasta ahora esa lógica solo se había probado indirectamente, vía HTTP con todo el contexto real.
 
 ## Errores comunes (y por qué importan)
 
