@@ -22,7 +22,8 @@
   - `org.testcontainers:testcontainers-junit-jupiter` (no `org.testcontainers:junit-jupiter`).
   - `org.testcontainers:testcontainers-postgresql` (no `org.testcontainers:postgresql`).
   - Ambas sin versión explícita — gestionadas por el BOM de Testcontainers que `spring-boot-testcontainers` importa transitivamente.
-  - `com.redis:testcontainers-redis:2.2.4` (verificado en Maven Central) SÍ necesita versión explícita — no está en ningún BOM de Spring Boot. Clase real: `com.redis.testcontainers.RedisContainer` (verificado inspeccionando el jar), constructor `RedisContainer(DockerImageName)`.
+  - `com.redis:testcontainers-redis:2.2.4` (verificado en Maven Central) SÍ necesita versión explícita — no está en ningún BOM de Spring Boot. Clase real: `com.redis.testcontainers.RedisContainer` (verificado inspeccionando el jar), constructor `RedisContainer(DockerImageName)`, sin genéricos.
+  - **Corregido durante Task 1 (hallazgo real, no anticipado al escribir el plan):** en Testcontainers 2.0.5 (la versión que resuelve este proyecto), `PostgreSQLContainer` vive en `org.testcontainers.postgresql` (no en `org.testcontainers.containers`, el paquete clásico) y **ya no es una clase genérica autorreferenciada** — es `PostgreSQLContainer(DockerImageName)`, sin `<>`. Verificado con `javap` contra el `.class` real dentro del jar resuelto por este mismo proyecto, y confirmado por el propio código que Spring Initializr generó en `TestcontainersConfiguration.java` (Task 1), que ya usa esta forma. El clásico `org.testcontainers.containers.PostgreSQLContainer<SELF>` sigue existiendo en el jar (probablemente por compatibilidad) pero no es el que este plan usa.
 - `maven-failsafe-plugin` **ya está gestionado por `spring-boot-starter-parent`** (goals `integration-test`+`verify` pre-configurados — verificado en el POM del parent). Basta con declarar `<plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-failsafe-plugin</artifactId></plugin>` sin versión ni `<executions>` propias.
 - **Docker no está disponible en este entorno.** `./mvnw test` (Surefire) debe pasar en verde localmente. `./mvnw verify` completo (con Failsafe → Testcontainers) **fallará localmente por falta de Docker — esto es esperado**, se usa `./mvnw verify -DskipITs` para confirmar compilación/empaquetado. La verificación real de los tests `*IT.java` llega en `examples-ci.yml` (GitHub Actions, `ubuntu-latest`, Docker preinstalado) tras el push.
 - Máquina de desarrollo: usar `JAVA_HOME=/c/jdk-23.0.1` (bash) para toda invocación de `./mvnw`.
@@ -750,7 +751,7 @@ git commit -m "feat: add Mockito unit test for TaskServiceImpl ownership logic, 
 - Create: `docs-site/docs/06-testing/testcontainers.md`
 
 **Interfaces:**
-- Consumes: `RegisterRequest`, `LoginRequest`, `TaskRequest` (Task 2), rutas `/auth/register`, `/auth/login`, `/tasks`, `/tasks/{id}` (Task 2). `com.redis.testcontainers.RedisContainer` (constructor `RedisContainer(DockerImageName)`), `org.testcontainers.containers.PostgreSQLContainer` (constructor `PostgreSQLContainer<>(DockerImageName)`), `org.springframework.boot.testcontainers.service.connection.ServiceConnection`.
+- Consumes: `RegisterRequest`, `LoginRequest`, `TaskRequest` (Task 2), rutas `/auth/register`, `/auth/login`, `/tasks`, `/tasks/{id}` (Task 2). `com.redis.testcontainers.RedisContainer` (constructor `RedisContainer(DockerImageName)`, no genéricos). `org.testcontainers.postgresql.PostgreSQLContainer` (constructor `PostgreSQLContainer(DockerImageName)`, **sin genéricos** — a diferencia de la clase clásica `org.testcontainers.containers.PostgreSQLContainer<SELF>`, esta (la que Testcontainers 2.0.5/Spring Initializr genera para este proyecto) ya no es una clase autorreferenciada; verificado inspeccionando el `.class` real del jar resuelto por este mismo proyecto — no asumir el paquete/firma clásicos de versiones anteriores de Testcontainers). `org.springframework.boot.testcontainers.service.connection.ServiceConnection`.
 - Produces: ninguna interfaz nueva para otros tasks.
 
 - [ ] **Step 1: Escribir `TaskApiIT.java` — sufijo `IT` obligatorio (Failsafe lo recoge, Surefire lo excluye por convención estándar de Maven, sin configuración extra)**
@@ -772,9 +773,9 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 import tools.jackson.databind.ObjectMapper;
 
@@ -785,7 +786,7 @@ class TaskApiIT {
 
     @Container
     @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"));
+    static PostgreSQLContainer postgres = new PostgreSQLContainer(DockerImageName.parse("postgres:16"));
 
     @Container
     @ServiceConnection
@@ -879,7 +880,7 @@ class TaskApiIT {
 
     @Container
     @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"));
+    static PostgreSQLContainer postgres = new PostgreSQLContainer(DockerImageName.parse("postgres:16"));
 
     @Container
     @ServiceConnection
