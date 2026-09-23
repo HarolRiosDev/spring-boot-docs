@@ -32,7 +32,9 @@ Flyway crea el esquema y siembra un usuario administrador al arrancar:
 SPRING_PROFILES_ACTIVE=h2 ./mvnw spring-boot:run
 ```
 
-Corre la app contra H2 en archivo (`data/tasks_kafka.mv.db`, en `.gitignore`) — a diferencia de Postgres, Kafka no tiene un equivalente para correr sin Docker fuera de tests. Sin un Kafka real en `localhost:9092`, la app arranca y `POST /tasks`/`PUT /tasks/{id}` siguen respondiendo con normalidad — el envío del evento falla de forma asíncrona y queda logueado como error, sin bloquear la respuesta HTTP.
+Corre la app contra H2 en archivo (`data/tasks_kafka.mv.db`, en `.gitignore`) — a diferencia de Postgres, Kafka no tiene un equivalente para correr sin Docker fuera de tests. Sin un Kafka real en `localhost:9092`, la app arranca y `POST /tasks`/`PUT /tasks/{id}` siguen respondiendo con normalidad, pero no de forma instantánea ni asíncrona: el envío del evento a Kafka ocurre de forma síncrona, en el mismo hilo que atiende la petición HTTP, justo después de que la transacción confirma (`AFTER_COMMIT`), y `KafkaConfig` acota ese envío a 3 segundos vía `max.block.ms`. Sin Kafka disponible, cada `POST /tasks`/`PUT /tasks/{id}` que publica un evento tarda hasta ~3 segundos extra y registra un error en el log — pero siempre termina respondiendo, nunca se queda colgada indefinidamente. Ver [productores-y-eventos.md](../../docs-site/docs/05-kafka/productores-y-eventos.md) para la explicación completa.
+
+Caché: este ejemplo usa `ConcurrentMapCacheManager` (`spring.cache.type: simple`) — esta fase es sobre Kafka, no sobre caché. El `CacheConfig` con Redis se conserva tal cual vino del port de la Fase 4, pero nunca se activa aquí: `docker-compose.yml` no levanta ningún servicio de Redis.
 
 ## Endpoints
 
@@ -68,3 +70,8 @@ Tras un `POST /tasks`, debería aparecer un mensaje JSON con el evento `CREATED`
 ```
 
 Usan H2 en memoria + `EmbeddedKafkaBroker` (un broker Kafka real embebido en el proceso de test, no un mock) — no requieren Docker. Los tests obtienen JWT reales registrando/logueando usuarios contra el propio API.
+
+## Pendiente de verificación
+
+- `docker-compose.yml` nunca se levantó de verdad en el entorno donde se desarrolló este ejemplo (sin Docker disponible) — Postgres y Kafka reales quedan sin probar end-to-end.
+- La columna `created_at TIMESTAMP` de `notifications` (mapeada desde `Instant` en `Notification.createdAt`) pasa `ddl-auto: validate` contra H2, pero no se verificó contra un Postgres real — Hibernate 6 normalmente prefiere `TIMESTAMPTZ`/`timestamp with time zone` para `Instant`, y aunque es muy probable que el validador de esquema de Hibernate también la acepte ahí por un match de prefijo, queda sin confirmar.

@@ -67,6 +67,12 @@ public class KafkaConfig {
      * arrancar con "No group.id found". Al definir aquí el bean con el nombre exacto que
      * {@code @KafkaListener} busca por defecto, la auto-configuración de Boot retrocede
      * (@ConditionalOnMissingBean) y se usa este, construido sobre nuestro consumerFactory.
+     *
+     * <p>Nota: al definir este bean a mano en vez de dejar que Boot lo construya vía
+     * {@code ConcurrentKafkaListenerContainerFactoryConfigurer}, las propiedades
+     * {@code spring.kafka.listener.*}/{@code spring.kafka.template.*} de {@code application.yml}
+     * dejan de aplicarse a este factory — cualquier ajuste futuro de auto-startup, concurrencia,
+     * ack-mode, observation, etc. debe hacerse aquí, no en YAML.
      */
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, TaskEvent> kafkaListenerContainerFactory(
