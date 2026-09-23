@@ -10,6 +10,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+  cache:
+    type: simple
   kafka:
     bootstrap-servers: ${spring.embedded.kafka.brokers:localhost:9092}
 
