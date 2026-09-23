@@ -1,7 +1,9 @@
 package dev.springbootdocs.examples.tasks;
 
+import java.time.Instant;
 import java.util.List;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,17 +12,25 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final CachedTaskLookup cachedTaskLookup;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public TaskServiceImpl(TaskRepository taskRepository, CachedTaskLookup cachedTaskLookup) {
+    public TaskServiceImpl(
+            TaskRepository taskRepository,
+            CachedTaskLookup cachedTaskLookup,
+            ApplicationEventPublisher eventPublisher) {
         this.taskRepository = taskRepository;
         this.cachedTaskLookup = cachedTaskLookup;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
     @Transactional
     public TaskResponse create(TaskRequest request, User currentUser) {
         Task task = new Task(request.titulo(), request.descripcion(), request.completada(), currentUser);
-        return TaskResponse.from(taskRepository.save(task));
+        Task saved = taskRepository.save(task);
+        eventPublisher.publishEvent(new TaskEvent(
+                saved.getId(), TaskEventType.CREATED, saved.getTitulo(), currentUser.getUsername(), Instant.now()));
+        return TaskResponse.from(saved);
     }
 
     @Override
@@ -43,10 +53,16 @@ public class TaskServiceImpl implements TaskService {
     @CacheEvict(value = "tasks", key = "#id")
     public TaskResponse update(Long id, TaskRequest request, User currentUser) {
         Task task = getTaskForCurrentUser(id, currentUser);
+        boolean wasCompleted = task.isCompletada();
         task.setTitulo(request.titulo());
         task.setDescripcion(request.descripcion());
         task.setCompletada(request.completada());
-        return TaskResponse.from(taskRepository.save(task));
+        Task saved = taskRepository.save(task);
+        if (!wasCompleted && saved.isCompletada()) {
+            eventPublisher.publishEvent(new TaskEvent(
+                    saved.getId(), TaskEventType.COMPLETED, saved.getTitulo(), saved.getUser().getUsername(), Instant.now()));
+        }
+        return TaskResponse.from(saved);
     }
 
     @Override
