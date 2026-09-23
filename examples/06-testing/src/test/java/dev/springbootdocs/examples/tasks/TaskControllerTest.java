@@ -7,7 +7,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -198,11 +202,35 @@ class TaskControllerTest {
                 .andExpect(status().isForbidden());
     }
 
-    @Test
-    void createTask_withTituloOverMaxLength_returnsBadRequest() throws Exception {
-        String token = registerAndLogin("victor");
-        String tituloTooLong = "a".repeat(256);
-        String json = objectMapper.writeValueAsString(new TaskRequest(tituloTooLong, "desc", false));
+    @Nested
+    class TituloInvalido {
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = {"   "})
+        void tituloEnBlanco_returnsBadRequest(String tituloInvalido) throws Exception {
+            assertTaskCreationRejected("wendy", tituloInvalido, "desc", "titulo");
+        }
+
+        @Test
+        void tituloDemasiadoLargo_returnsBadRequest() throws Exception {
+            assertTaskCreationRejected("xavier", "a".repeat(256), "desc", "titulo");
+        }
+    }
+
+    @Nested
+    class DescripcionInvalida {
+
+        @Test
+        void descripcionDemasiadoLarga_returnsBadRequest() throws Exception {
+            assertTaskCreationRejected("yolanda", "Titulo valido", "a".repeat(1001), "descripcion");
+        }
+    }
+
+    private void assertTaskCreationRejected(
+            String username, String titulo, String descripcion, String failingField) throws Exception {
+        String token = registerAndLogin(username);
+        String json = objectMapper.writeValueAsString(new TaskRequest(titulo, descripcion, false));
 
         mockMvc.perform(post("/tasks")
                         .header("Authorization", "Bearer " + token)
@@ -210,7 +238,7 @@ class TaskControllerTest {
                         .content(json))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.errors.titulo").exists());
+                .andExpect(jsonPath("$.errors." + failingField).exists());
     }
 
     @Test
