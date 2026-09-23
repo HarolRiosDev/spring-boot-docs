@@ -3,6 +3,7 @@ package dev.springbootdocs.examples.tasks;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.redis.testcontainers.RedisContainer;
@@ -20,8 +21,14 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 import tools.jackson.databind.ObjectMapper;
 
+// La propiedad "spring.cache.type=redis" sobreescribe, solo para el ApplicationContext de
+// esta clase, el "simple" heredado de src/test/resources/application.yml (necesario para
+// que los otros 44 tests de Surefire NO intenten hablar con un Redis real que no tienen
+// corriendo). Sin este override, @Cacheable escribiría en el ConcurrentMapCacheManager en
+// memoria de Spring y jamás tocaría el contenedor Redis real levantado por @ServiceConnection
+// más abajo — el test pasaría igual hasta la última aserción, que fallaría siempre.
 @Testcontainers
-@SpringBootTest
+@SpringBootTest(properties = "spring.cache.type=redis")
 @AutoConfigureMockMvc
 class TaskApiIT {
 
@@ -72,9 +79,27 @@ class TaskApiIT {
 
         // La lectura anterior pasó por CachedTaskLookup (@Cacheable) contra el Redis real
         // del contenedor: confirmarlo leyendo la clave directamente, con el mismo cliente
-        // redis-cli que se usa para verificación manual en Fase 4.
+        // redis-cli que se usa para verificación manual en Fase 4. Se compara la lista de
+        // líneas exactas (no un "contains" sobre el texto crudo) para no confundir
+        // "tasks::1" con un futuro "tasks::10".
+        String cacheKey = "tasks::" + taskId;
         org.testcontainers.containers.Container.ExecResult keysResult =
                 redis.execInContainer("redis-cli", "keys", "tasks::*");
-        assertThat(keysResult.getStdout()).contains("tasks::" + taskId);
+        assertThat(keysResult.getStdout().lines()).contains(cacheKey);
+
+        // Invalidación: un PUT (update) dispara @CacheEvict(value = "tasks", key = "#id")
+        // en TaskServiceImpl.update. Si esa anotación se quitara, la clave seguiría presente
+        // y esta aserción fallaría — es la única verificación de todo el proyecto que prueba
+        // @CacheEvict contra un Redis real en vez de contra el ConcurrentMapCacheManager simulado.
+        mockMvc.perform(put("/tasks/{id}", taskId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                new TaskRequest("Aprender Testcontainers (editado)", "desc", true))))
+                .andExpect(status().isOk());
+
+        org.testcontainers.containers.Container.ExecResult keysAfterUpdateResult =
+                redis.execInContainer("redis-cli", "keys", "tasks::*");
+        assertThat(keysAfterUpdateResult.getStdout().lines()).doesNotContain(cacheKey);
     }
 }

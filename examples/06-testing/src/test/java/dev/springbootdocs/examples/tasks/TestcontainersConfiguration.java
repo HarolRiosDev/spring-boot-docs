@@ -10,16 +10,21 @@ import org.testcontainers.utility.DockerImageName;
 @TestConfiguration(proxyBeanMethods = false)
 class TestcontainersConfiguration {
 
+	// Generada por Spring Initializr; usada solo por TestTasksTestingApplication para levantar
+	// la app localmente contra contenedores efímeros (útil sin Docker Compose a mano). No la usa
+	// TaskApiIT, que define sus propios campos @Container independientes más arriba en este
+	// mismo árbol de test — de ahí que existan dos configuraciones de Testcontainers distintas.
+
 	@Bean
 	@ServiceConnection
 	PostgreSQLContainer postgresContainer() {
-		return new PostgreSQLContainer(DockerImageName.parse("postgres:latest"));
+		return new PostgreSQLContainer(DockerImageName.parse("postgres:16"));
 	}
 
 	@Bean
 	@ServiceConnection(name = "redis")
 	GenericContainer<?> redisContainer() {
-		return new GenericContainer<>(DockerImageName.parse("redis:latest")).withExposedPorts(6379);
+		return new GenericContainer<>(DockerImageName.parse("redis:7-alpine")).withExposedPorts(6379);
 	}
 
 }
