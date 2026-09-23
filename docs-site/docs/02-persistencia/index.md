@@ -4,7 +4,7 @@ title: Persistencia
 
 # Persistencia
 
-En la [Fase 1](/docs/01-fundamentos) guardábamos las tareas en un mapa en memoria: útil para aprender capas, pero los datos desaparecían al reiniciar la aplicación. Esta fase sustituye ese repositorio por persistencia real: PostgreSQL como base de datos, Spring Data JPA para no escribir SQL a mano, y Flyway para versionar el esquema como código.
+En la [Fase 1](/docs/01-fundamentos/) guardábamos las tareas en un mapa en memoria: útil para aprender capas, pero los datos desaparecían al reiniciar la aplicación. Esta fase sustituye ese repositorio por persistencia real: PostgreSQL como base de datos, Spring Data JPA para no escribir SQL a mano, y Flyway para versionar el esquema como código.
 
 ## Contenido
 

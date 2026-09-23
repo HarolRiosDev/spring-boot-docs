@@ -10,49 +10,49 @@ const PHASES = [
     icon: '☕',
     title: 'Repaso de Java (opcional)',
     description: 'POO, herencia, polimorfismo, interfaces, colecciones, lambdas/streams.',
-    to: '/docs/repaso-java',
+    to: '/docs/repaso-java/',
   },
   {
     icon: '🧱',
     title: '1. Fundamentos',
     description: 'DI, beans, REST, capas, validación, manejo de errores.',
-    to: '/docs/01-fundamentos',
+    to: '/docs/01-fundamentos/',
   },
   {
     icon: '🗄️',
     title: '2. Persistencia',
     description: 'Spring Data JPA, PostgreSQL, Flyway.',
-    to: '/docs/02-persistencia',
+    to: '/docs/02-persistencia/',
   },
   {
     icon: '🔐',
     title: '3. Seguridad y Auth',
     description: 'Spring Security, JWT, roles.',
-    to: '/docs/03-security-jwt',
+    to: '/docs/03-security-jwt/',
   },
   {
     icon: '⚡',
     title: '4. Caché y Redis',
     description: 'Spring Cache respaldado por Redis.',
-    to: '/docs/04-cache-redis',
+    to: '/docs/04-cache-redis/',
   },
   {
     icon: '📨',
     title: '5. Mensajería (Kafka)',
     description: 'Productores y consumidores con Spring Kafka.',
-    to: '/docs/05-kafka',
+    to: '/docs/05-kafka/',
   },
   {
     icon: '🧪',
     title: '6. Testing',
     description: 'JUnit, Mockito, Testcontainers.',
-    to: '/docs/06-testing',
+    to: '/docs/06-testing/',
   },
   {
     icon: '📊',
     title: '7. Producción',
     description: 'Actuator, métricas, logging, Docker.',
-    to: '/docs/07-observabilidad',
+    to: '/docs/07-observabilidad/',
   },
 ];
 
@@ -67,7 +67,7 @@ function HomepageHeader() {
           Documentación clara y proyectos ejecutables para aprender Spring Boot
         </p>
         <div className={styles.heroButtons}>
-          <Link className="button button--lg button--secondary" to="/docs/00-bienvenida">
+          <Link className="button button--lg button--secondary" to="/docs/00-bienvenida/">
             Empezar 🚀
           </Link>
           <Link

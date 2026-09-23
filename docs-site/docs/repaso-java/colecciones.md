@@ -41,7 +41,7 @@ cache.put(1L, tarea);
 Task encontrada = cache.get(1L); // null si la clave no existe
 ```
 
-`HashMap` es la implementación estándar. Esto es, de hecho, la idea conceptual detrás de la caché de la [Fase 4](/docs/04-cache-redis) — `ConcurrentMapCacheManager` (el que usan los tests) literalmente guarda cada entrada en un `Map`.
+`HashMap` es la implementación estándar. Esto es, de hecho, la idea conceptual detrás de la caché de la [Fase 4](/docs/04-cache-redis/) — `ConcurrentMapCacheManager` (el que usan los tests) literalmente guarda cada entrada en un `Map`.
 
 ## Programa contra la interfaz, no la implementación
 
