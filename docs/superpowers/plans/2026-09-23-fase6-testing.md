@@ -22,7 +22,8 @@
   - `org.testcontainers:testcontainers-junit-jupiter` (no `org.testcontainers:junit-jupiter`).
   - `org.testcontainers:testcontainers-postgresql` (no `org.testcontainers:postgresql`).
   - Ambas sin versión explícita — gestionadas por el BOM de Testcontainers que `spring-boot-testcontainers` importa transitivamente.
-  - `com.redis:testcontainers-redis:2.2.4` (verificado en Maven Central) SÍ necesita versión explícita — no está en ningún BOM de Spring Boot. Clase real: `com.redis.testcontainers.RedisContainer` (verificado inspeccionando el jar), constructor `RedisContainer(DockerImageName)`.
+  - `com.redis:testcontainers-redis:2.2.4` (verificado en Maven Central) SÍ necesita versión explícita — no está en ningún BOM de Spring Boot. Clase real: `com.redis.testcontainers.RedisContainer` (verificado inspeccionando el jar), constructor `RedisContainer(DockerImageName)`, sin genéricos.
+  - **Corregido durante Task 1 (hallazgo real, no anticipado al escribir el plan):** en Testcontainers 2.0.5 (la versión que resuelve este proyecto), `PostgreSQLContainer` vive en `org.testcontainers.postgresql` (no en `org.testcontainers.containers`, el paquete clásico) y **ya no es una clase genérica autorreferenciada** — es `PostgreSQLContainer(DockerImageName)`, sin `<>`. Verificado con `javap` contra el `.class` real dentro del jar resuelto por este mismo proyecto, y confirmado por el propio código que Spring Initializr generó en `TestcontainersConfiguration.java` (Task 1), que ya usa esta forma. El clásico `org.testcontainers.containers.PostgreSQLContainer<SELF>` sigue existiendo en el jar (probablemente por compatibilidad) pero no es el que este plan usa.
 - `maven-failsafe-plugin` **ya está gestionado por `spring-boot-starter-parent`** (goals `integration-test`+`verify` pre-configurados — verificado en el POM del parent). Basta con declarar `<plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-failsafe-plugin</artifactId></plugin>` sin versión ni `<executions>` propias.
 - **Docker no está disponible en este entorno.** `./mvnw test` (Surefire) debe pasar en verde localmente. `./mvnw verify` completo (con Failsafe → Testcontainers) **fallará localmente por falta de Docker — esto es esperado**, se usa `./mvnw verify -DskipITs` para confirmar compilación/empaquetado. La verificación real de los tests `*IT.java` llega en `examples-ci.yml` (GitHub Actions, `ubuntu-latest`, Docker preinstalado) tras el push.
 - Máquina de desarrollo: usar `JAVA_HOME=/c/jdk-23.0.1` (bash) para toda invocación de `./mvnw`.
@@ -47,7 +48,7 @@ examples/06-testing/                    # nuevo proyecto Maven (Initializr + cop
 ├── docker-compose.yml                  # postgres (5436) + redis:7-alpine
 ├── src/main/java/dev/springbootdocs/examples/tasks/
 │   ├── TasksTestingApplication.java    # generado por Initializr, no se toca
-│   ├── (28 clases más)                 # copiadas byte a byte de examples/04-cache-redis (Task 2)
+│   ├── (31 clases más)                 # copiadas byte a byte de examples/04-cache-redis (Task 2)
 ├── src/main/resources/
 │   ├── application.yml                 # adaptado: puerto 5436, db tasks_testing
 │   ├── application-h2.yml              # adaptado: ruta de archivo H2
@@ -58,7 +59,9 @@ examples/06-testing/                    # nuevo proyecto Maven (Initializr + cop
 ├── src/test/resources/
 │   └── application.yml                 # adaptado: nombre de app
 ├── src/test/java/dev/springbootdocs/examples/tasks/
-│   ├── TasksTestingApplicationTests.java  # generado por Initializr, no se toca
+│   ├── TasksTestingApplicationTests.java  # generado por Initializr — Task 1 le quitó @Import(TestcontainersConfiguration.class) para correr sobre H2 sin Docker
+│   ├── TestcontainersConfiguration.java   # generado por Initializr, scaffolding de conveniencia sin caller en el build automatizado (ver hallazgo de revisión de Task 1) — no se toca
+│   ├── TestTasksTestingApplication.java   # generado por Initializr, idem — no se toca
 │   ├── JwtServiceTest.java             # copiado byte a byte
 │   ├── GlobalExceptionHandlerTest.java # copiado byte a byte
 │   ├── AuthControllerTest.java         # copiado byte a byte
@@ -354,7 +357,7 @@ git commit -m "chore: bootstrap examples/06-testing (users/tasks schema, Postgre
 Esta fase no rediseña el dominio — el spec es explícito: "se porta `examples/04-cache-redis` completo y verbatim". Este task copia los archivos directamente (no los retipea) para garantizar fidelidad byte a byte, y confirma que el port compila y todos los tests heredados siguen en verde antes de añadir nada nuevo.
 
 **Files:**
-- Create: 28 archivos en `examples/06-testing/src/main/java/dev/springbootdocs/examples/tasks/` (todos los de `examples/04-cache-redis` excepto `TasksCacheApplication.java`)
+- Create: 31 archivos en `examples/06-testing/src/main/java/dev/springbootdocs/examples/tasks/` (todos los de `examples/04-cache-redis` excepto `TasksCacheApplication.java`)
 - Create: 6 archivos en `examples/06-testing/src/test/java/dev/springbootdocs/examples/tasks/` (`AuthControllerTest`, `AdminControllerTest`, `CacheBehaviorTest`, `CacheValueSerializationTest`, `GlobalExceptionHandlerTest`, `JwtServiceTest`)
 - Create: `examples/06-testing/src/test/java/dev/springbootdocs/examples/tasks/TaskControllerTest.java` (copiado — Task 3 lo modifica después)
 
@@ -379,7 +382,7 @@ done
 ls "$DEST" | wc -l
 ```
 
-Expected: 29 archivos en `$DEST` (28 copiados + `TasksTestingApplication.java`, ya generado por Initializr en Task 1).
+Expected: 32 archivos en `$DEST` (31 copiados + `TasksTestingApplication.java`, ya generado por Initializr en Task 1; corregido tras contar mal en la escritura original del plan — `examples/04-cache-redis` tiene 32 clases en total, no 29).
 
 - [ ] **Step 2: Copiar los tests ya existentes de Fase 4, excepto el test de contexto (ya generado por Initializr) y `TaskControllerTest` (se copia igual, pero Task 3 lo modifica a continuación)**
 
@@ -397,7 +400,7 @@ done
 ls "$DEST" | wc -l
 ```
 
-Expected: 8 archivos en `$DEST` (7 copiados + `TasksTestingApplicationTests.java`, ya generado por Initializr).
+Expected: 10 archivos en `$DEST` (7 copiados + 3 ya generados por Initializr en Task 1: `TasksTestingApplicationTests.java`, y también `TestcontainersConfiguration.java`/`TestTasksTestingApplication.java` — estos dos últimos no anticipados al escribir el plan original, son scaffolding de conveniencia de Initializr para correr la app localmente con contenedores, sin caller en el build automatizado; ver hallazgo de la revisión de Task 1).
 
 - [ ] **Step 3: Ejecutar los tests y confirmar que el port compila y pasa en verde tal cual, sin ningún cambio de comportamiento**
 
@@ -686,7 +689,7 @@ Un test **unitario** con Mockito tiene sentido cuando la clase bajo prueba tiene
 
 Un test de **integración** (lo ya conocido: `@SpringBootTest` + MockMvc) tiene sentido cuando lo que hay que confirmar es que las piezas están bien conectadas — que Spring Security bloquea lo que debe bloquear, que una consulta JPA devuelve lo que la anotación dice que devuelve, que la serialización JSON no rompe nada. Eso no se puede mockear: hay que ejercitarlo de verdad.
 
-`TaskServiceImpl.findById` es un buen candidato para Mockito: la lógica de ownership (¿puede este usuario ver esta tarea?) vive enteramente en Java, sin tocar la base de datos directamente — solo llama a `CachedTaskLookup`, una interfaz de una línea fácil de sustituir. Hasta ahora esa lógica solo se había probado indirectamente, vía HTTP con todo el contexto real.
+`TaskServiceImpl.findById` es un buen candidato para Mockito: la lógica de ownership (¿puede este usuario ver esta tarea?) vive enteramente en Java, sin tocar la base de datos directamente — solo llama a `CachedTaskLookup`, una clase de una línea fácil de sustituir (`@Component`, no una interfaz — Mockito mockea clases concretas no-`final` igual de bien que interfaces). Hasta ahora esa lógica solo se había probado indirectamente, vía HTTP con todo el contexto real.
 
 ## Errores comunes (y por qué importan)
 
@@ -750,7 +753,7 @@ git commit -m "feat: add Mockito unit test for TaskServiceImpl ownership logic, 
 - Create: `docs-site/docs/06-testing/testcontainers.md`
 
 **Interfaces:**
-- Consumes: `RegisterRequest`, `LoginRequest`, `TaskRequest` (Task 2), rutas `/auth/register`, `/auth/login`, `/tasks`, `/tasks/{id}` (Task 2). `com.redis.testcontainers.RedisContainer` (constructor `RedisContainer(DockerImageName)`), `org.testcontainers.containers.PostgreSQLContainer` (constructor `PostgreSQLContainer<>(DockerImageName)`), `org.springframework.boot.testcontainers.service.connection.ServiceConnection`.
+- Consumes: `RegisterRequest`, `LoginRequest`, `TaskRequest` (Task 2), rutas `/auth/register`, `/auth/login`, `/tasks`, `/tasks/{id}` (Task 2). `com.redis.testcontainers.RedisContainer` (constructor `RedisContainer(DockerImageName)`, no genéricos). `org.testcontainers.postgresql.PostgreSQLContainer` (constructor `PostgreSQLContainer(DockerImageName)`, **sin genéricos** — a diferencia de la clase clásica `org.testcontainers.containers.PostgreSQLContainer<SELF>`, esta (la que Testcontainers 2.0.5/Spring Initializr genera para este proyecto) ya no es una clase autorreferenciada; verificado inspeccionando el `.class` real del jar resuelto por este mismo proyecto — no asumir el paquete/firma clásicos de versiones anteriores de Testcontainers). `org.springframework.boot.testcontainers.service.connection.ServiceConnection`.
 - Produces: ninguna interfaz nueva para otros tasks.
 
 - [ ] **Step 1: Escribir `TaskApiIT.java` — sufijo `IT` obligatorio (Failsafe lo recoge, Surefire lo excluye por convención estándar de Maven, sin configuración extra)**
@@ -772,9 +775,9 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 import tools.jackson.databind.ObjectMapper;
 
@@ -785,7 +788,7 @@ class TaskApiIT {
 
     @Container
     @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"));
+    static PostgreSQLContainer postgres = new PostgreSQLContainer(DockerImageName.parse("postgres:16"));
 
     @Container
     @ServiceConnection
@@ -879,7 +882,7 @@ class TaskApiIT {
 
     @Container
     @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"));
+    static PostgreSQLContainer postgres = new PostgreSQLContainer(DockerImageName.parse("postgres:16"));
 
     @Container
     @ServiceConnection

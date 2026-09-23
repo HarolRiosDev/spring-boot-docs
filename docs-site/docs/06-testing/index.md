@@ -4,8 +4,15 @@ title: Testing
 
 # Testing
 
-🚧 **En construcción.**
+Hasta ahora, todo test de este sitio pasaba por un contexto Spring completo: `@SpringBootTest`, MockMvc, una base de datos (H2). Es una herramienta sólida, pero no la única — y usarla para todo tiene un costo que a veces no hace falta pagar. Esta fase enseña cuándo eso es demasiado (un test unitario con Mockito basta y sobra) y cuándo es demasiado poco (Testcontainers, para confirmar contra infraestructura real).
 
-Esta sección cubrirá: JUnit 5, Mockito, Testcontainers.
+## Contenido
 
-Vuelve pronto — este tema se desarrolla en una fase posterior del roadmap. Mientras tanto, puedes ver el [índice completo](/docs/00-bienvenida/) del sitio.
+1. [JUnit avanzado](./junit-avanzado)
+2. [Mockito y tests unitarios](./mockito-y-tests-unitarios)
+3. [Testcontainers](./testcontainers)
+4. [Cuándo usar cada uno](./cuando-usar-cada-uno)
+
+## Ejemplo ejecutable
+
+Todo el código de esta fase vive en [`examples/06-testing`](https://github.com/HarolRiosDev/spring-boot-docs/tree/main/examples/06-testing): el mismo API de gestión de tareas con auth JWT y caché de la Fase 4, portado sin cambios de diseño — el foco aquí es cómo se prueba, no qué se prueba.

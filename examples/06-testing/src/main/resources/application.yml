@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: 06-testing
+  datasource:
+    url: jdbc:postgresql://localhost:5436/tasks_testing
+    username: tasks_testing
+    password: tasks_testing
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+app:
+  jwt:
+    secret: "${JWT_SECRET:local-dev-secret-please-change-in-production-0123456789abcdef}"
+    expiration-millis: 3600000
