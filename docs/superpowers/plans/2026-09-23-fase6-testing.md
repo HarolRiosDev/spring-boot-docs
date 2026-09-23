@@ -48,7 +48,7 @@ examples/06-testing/                    # nuevo proyecto Maven (Initializr + cop
 ├── docker-compose.yml                  # postgres (5436) + redis:7-alpine
 ├── src/main/java/dev/springbootdocs/examples/tasks/
 │   ├── TasksTestingApplication.java    # generado por Initializr, no se toca
-│   ├── (28 clases más)                 # copiadas byte a byte de examples/04-cache-redis (Task 2)
+│   ├── (31 clases más)                 # copiadas byte a byte de examples/04-cache-redis (Task 2)
 ├── src/main/resources/
 │   ├── application.yml                 # adaptado: puerto 5436, db tasks_testing
 │   ├── application-h2.yml              # adaptado: ruta de archivo H2
@@ -59,7 +59,9 @@ examples/06-testing/                    # nuevo proyecto Maven (Initializr + cop
 ├── src/test/resources/
 │   └── application.yml                 # adaptado: nombre de app
 ├── src/test/java/dev/springbootdocs/examples/tasks/
-│   ├── TasksTestingApplicationTests.java  # generado por Initializr, no se toca
+│   ├── TasksTestingApplicationTests.java  # generado por Initializr — Task 1 le quitó @Import(TestcontainersConfiguration.class) para correr sobre H2 sin Docker
+│   ├── TestcontainersConfiguration.java   # generado por Initializr, scaffolding de conveniencia sin caller en el build automatizado (ver hallazgo de revisión de Task 1) — no se toca
+│   ├── TestTasksTestingApplication.java   # generado por Initializr, idem — no se toca
 │   ├── JwtServiceTest.java             # copiado byte a byte
 │   ├── GlobalExceptionHandlerTest.java # copiado byte a byte
 │   ├── AuthControllerTest.java         # copiado byte a byte
@@ -355,7 +357,7 @@ git commit -m "chore: bootstrap examples/06-testing (users/tasks schema, Postgre
 Esta fase no rediseña el dominio — el spec es explícito: "se porta `examples/04-cache-redis` completo y verbatim". Este task copia los archivos directamente (no los retipea) para garantizar fidelidad byte a byte, y confirma que el port compila y todos los tests heredados siguen en verde antes de añadir nada nuevo.
 
 **Files:**
-- Create: 28 archivos en `examples/06-testing/src/main/java/dev/springbootdocs/examples/tasks/` (todos los de `examples/04-cache-redis` excepto `TasksCacheApplication.java`)
+- Create: 31 archivos en `examples/06-testing/src/main/java/dev/springbootdocs/examples/tasks/` (todos los de `examples/04-cache-redis` excepto `TasksCacheApplication.java`)
 - Create: 6 archivos en `examples/06-testing/src/test/java/dev/springbootdocs/examples/tasks/` (`AuthControllerTest`, `AdminControllerTest`, `CacheBehaviorTest`, `CacheValueSerializationTest`, `GlobalExceptionHandlerTest`, `JwtServiceTest`)
 - Create: `examples/06-testing/src/test/java/dev/springbootdocs/examples/tasks/TaskControllerTest.java` (copiado — Task 3 lo modifica después)
 
@@ -380,7 +382,7 @@ done
 ls "$DEST" | wc -l
 ```
 
-Expected: 29 archivos en `$DEST` (28 copiados + `TasksTestingApplication.java`, ya generado por Initializr en Task 1).
+Expected: 32 archivos en `$DEST` (31 copiados + `TasksTestingApplication.java`, ya generado por Initializr en Task 1; corregido tras contar mal en la escritura original del plan — `examples/04-cache-redis` tiene 32 clases en total, no 29).
 
 - [ ] **Step 2: Copiar los tests ya existentes de Fase 4, excepto el test de contexto (ya generado por Initializr) y `TaskControllerTest` (se copia igual, pero Task 3 lo modifica a continuación)**
 
@@ -398,7 +400,7 @@ done
 ls "$DEST" | wc -l
 ```
 
-Expected: 8 archivos en `$DEST` (7 copiados + `TasksTestingApplicationTests.java`, ya generado por Initializr).
+Expected: 10 archivos en `$DEST` (7 copiados + 3 ya generados por Initializr en Task 1: `TasksTestingApplicationTests.java`, y también `TestcontainersConfiguration.java`/`TestTasksTestingApplication.java` — estos dos últimos no anticipados al escribir el plan original, son scaffolding de conveniencia de Initializr para correr la app localmente con contenedores, sin caller en el build automatizado; ver hallazgo de la revisión de Task 1).
 
 - [ ] **Step 3: Ejecutar los tests y confirmar que el port compila y pasa en verde tal cual, sin ningún cambio de comportamiento**
 
