@@ -61,9 +61,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     /**
-     * Looks up the task and enforces the ownership/admin check, returning the mutable
-     * entity for callers (update/delete) that need to modify or remove it. The public
-     * findById maps this to a TaskResponse instead of exposing the entity directly.
+     * Busca la tarea y aplica la comprobación de dueño/admin, devolviendo la entidad
+     * mutable para quien la necesita modificar o borrar (update/delete). El findById
+     * público la convierte en TaskResponse en vez de exponer la entidad directamente.
      */
     private Task getTaskForCurrentUser(Long id, User currentUser) {
         Task task = taskRepository.findById(id)

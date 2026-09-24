@@ -34,13 +34,12 @@ class JwtServiceTest {
     void isValid_returnsFalse_whenSignatureTampered() {
         JwtService jwtService = new JwtService(SECRET, 60_000);
         String token = jwtService.generateToken("alice", Role.USER);
-        // Tamper the second-to-last character, not the last one. An HS256 signature is
-        // 32 bytes, which base64url-encodes to 43 characters where only the FINAL
-        // character carries unused padding bits (2 of its 6) — swapping it can, for
-        // ~6% of possible signatures, land on a different character that decodes to
-        // the same bytes, leaving the "tampered" token still valid. Every other
-        // character encodes a full 6 bits with no such ambiguity, so tampering one of
-        // those always changes the decoded signature.
+        // Se altera el penúltimo carácter, no el último. Una firma HS256 ocupa 32 bytes,
+        // que en base64url son 43 caracteres, y solo el ÚLTIMO lleva bits de relleno sin
+        // usar (2 de sus 6): cambiarlo puede, para ~6% de las firmas posibles, dar otro
+        // carácter que decodifica a los mismos bytes, y el token "alterado" seguiría
+        // siendo válido. Todos los demás caracteres codifican 6 bits completos sin esa
+        // ambigüedad, así que alterar cualquiera de ellos siempre cambia la firma.
         int tamperIndex = token.length() - 2;
         char original = token.charAt(tamperIndex);
         char replacement = original == 'a' ? 'b' : 'a';

@@ -65,12 +65,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     /**
-     * Looks up the task through the cache (CachedTaskLookup — a hit or a miss is
-     * transparent from here), then ALWAYS enforces the ownership/admin check on every
-     * call. A cache hit never skips this: the cache only remembers "what is task #id",
-     * never "who is allowed to see it" — that decision depends on who is asking right
-     * now, so it must run on every call regardless of where the Task came from. Returns
-     * the mutable entity for callers (update/delete) that need to modify or remove it.
+     * Busca la tarea a través de la caché (CachedTaskLookup: desde aquí un acierto y un
+     * fallo son indistinguibles) y SIEMPRE aplica la comprobación de dueño/admin en cada
+     * llamada. Un acierto de caché nunca se la salta: la caché solo recuerda "qué es la
+     * tarea #id", nunca "quién puede verla", porque eso depende de quién pregunta en este
+     * momento. Devuelve la entidad mutable para quien la necesita modificar o borrar
+     * (update/delete).
      */
     private Task getTaskForCurrentUser(Long id, User currentUser) {
         Task task = cachedTaskLookup.findById(id);

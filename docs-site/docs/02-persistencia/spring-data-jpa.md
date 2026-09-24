@@ -70,3 +70,21 @@ public Task create(TaskRequest request) {
 ```
 
 Con una base de datos real, una operación puede implicar varias sentencias SQL que deben tener éxito juntas o fallar juntas (por ejemplo, si más adelante `create` también tuviera que escribir en otra tabla relacionada). `@Transactional` envuelve el método en una transacción: si algo falla a mitad, todo se revierte. Con el repositorio en memoria de la Fase 1 esto no hacía falta — no había nada que revertir.
+
+## `open-in-view: false`
+
+Spring Boot activa por defecto un mecanismo llamado *Open Session in View*: mantiene abierta la conexión con la base de datos durante **toda** la petición HTTP, incluso después de que el service haya terminado y mientras Jackson convierte la respuesta a JSON. Por eso al arrancar verás este aviso si no lo configuras:
+
+```
+spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering.
+```
+
+Parece cómodo — una relación perezosa (`LAZY`) se puede cargar desde el controlador sin que falle —, pero tiene dos costes reales: cada petición retiene una conexión del pool más tiempo del necesario, y pueden aparecer consultas SQL "invisibles" disparadas desde el controlador o desde la serialización, lejos de donde nadie las espera. Todos los ejemplos de este sitio lo desactivan:
+
+```yaml
+spring:
+  jpa:
+    open-in-view: false
+```
+
+Con eso, el acceso a la base de datos queda donde debe estar: dentro de los métodos `@Transactional` del service. La consecuencia práctica es una regla que ya siguen los ejemplos: el service devuelve lo que el controlador necesita ya cargado (a partir de la Fase 3, un DTO como `TaskResponse`), en vez de entregar una entidad con relaciones sin cargar para que alguien las recorra después.

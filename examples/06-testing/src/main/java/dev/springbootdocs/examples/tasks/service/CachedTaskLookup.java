@@ -18,7 +18,7 @@ public class CachedTaskLookup {
     /**
      * Usa {@code findByIdWithUser} (join fetch) y no el {@code findById} heredado: el valor
      * que devuelve este metodo es exactamente lo que se guarda en Redis, asi que su
-     * {@code user} tiene que ser un {@link User} real y ya cargado, nunca un proxy perezoso.
+     * {@code user} tiene que ser un {@link dev.springbootdocs.examples.tasks.model.User User} real y ya cargado, nunca un proxy perezoso.
      */
     @Cacheable(value = "tasks", key = "#id")
     public Task findById(Long id) {

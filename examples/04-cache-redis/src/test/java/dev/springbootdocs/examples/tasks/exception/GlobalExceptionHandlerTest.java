@@ -10,12 +10,13 @@ import org.springframework.http.ResponseEntity;
 class GlobalExceptionHandlerTest {
 
     /**
-     * This handler is a global safety net for ANY database constraint violation that
-     * slips past application-level validation (e.g. the TOCTOU race in
-     * AuthController#register, where two concurrent registrations with the same
-     * username can both pass the existsByUsername check before either saves). It
-     * verifies the handler maps DataIntegrityViolationException to 409 Conflict with a
-     * generic message, instead of an unhandled 500 or a message specific to one caller.
+     * El manejador es una red de seguridad global para CUALQUIER violación de una
+     * restricción de la base de datos que se escape de la validación de la aplicación
+     * (por ejemplo, la carrera en AuthServiceImpl#register: dos registros simultáneos con
+     * el mismo username pueden pasar ambos la comprobación existsByUsername antes de que
+     * ninguno guarde). Comprueba que DataIntegrityViolationException se traduce a un 409
+     * Conflict con un mensaje genérico, en vez de un 500 sin manejar o un mensaje propio
+     * de un único caso.
      */
     @Test
     void handleDataIntegrityViolation_returnsConflict() {
