@@ -15,3 +15,6 @@ examples/**/target/
 # OS
 .DS_Store
 Thumbs.db
+
+# Specs y planes de trabajo (locales, no se publican)
+docs/superpowers/
