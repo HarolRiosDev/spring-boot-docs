@@ -33,3 +33,22 @@ docker compose exec kafka /opt/kafka/bin/kafka-console-consumer.sh \
 ```
 
 Cada línea es un mensaje JSON — el mismo `TaskEvent` que el productor serializa y el consumidor deserializa, visible tal cual viaja por el topic. Es la forma más directa de confirmar que lo que se está enseñando en las páginas anteriores no es una abstracción: hay un mensaje real, en un broker real, con esos campos exactos.
+
+## Provocar un mensaje a la dead-letter queue
+
+Para ver la [dead-letter queue](./consumidores#la-dead-letter-queue) en acción, escribe a mano en `task-events` algo que no sea un `TaskEvent` válido:
+
+```bash
+echo 'esto no es JSON' | docker compose exec -T kafka /opt/kafka/bin/kafka-console-producer.sh \
+  --bootstrap-server localhost:9092 --topic task-events
+```
+
+La aplicación no se queda atascada en ese mensaje: lo manda a `task-events-dlt` y sigue con los siguientes. Para verlo allí, junto con los headers que explican por qué falló:
+
+```bash
+docker compose exec kafka /opt/kafka/bin/kafka-console-consumer.sh \
+  --bootstrap-server localhost:9092 --topic task-events-dlt --from-beginning \
+  --property print.headers=true
+```
+
+Entre los headers verás `kafka_dlt-exception-fqcn` con el valor `org.springframework.kafka.support.serializer.DeserializationException`: la causa exacta, guardada junto al mensaje original para poder investigarlo después.

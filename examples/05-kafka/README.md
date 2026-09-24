@@ -63,6 +63,8 @@ docker compose exec kafka /opt/kafka/bin/kafka-console-consumer.sh \
 
 Tras un `POST /tasks`, debería aparecer un mensaje JSON con el evento `CREATED`.
 
+Los mensajes que no se pueden procesar (por ejemplo, uno que no es JSON válido) acaban en el topic `task-events-dlt` en vez de bloquear al consumidor. Ver [Probar con Kafka real](../../docs-site/docs/05-kafka/probar-con-kafka-real.md#provocar-un-mensaje-a-la-dead-letter-queue) para provocarlo a mano.
+
 ## Tests
 
 ```bash
