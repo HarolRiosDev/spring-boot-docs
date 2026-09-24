@@ -41,13 +41,13 @@ Para un caso más simple — "solo un `ADMIN` puede llamar a este endpoint, sin 
 @GetMapping("/admin/users")
 @PreAuthorize("hasRole('ADMIN')")
 public List<UserSummary> listUsers() {
-    return userRepository.findAll().stream()
-            .map(user -> new UserSummary(user.getId(), user.getUsername(), user.getRole().name()))
-            .toList();
+    return userService.findAll();
 }
 ```
 
-`hasRole('ADMIN')` compara contra las autoridades del usuario autenticado (`ROLE_ADMIN`, que añade `UserPrincipal.getAuthorities()` — el prefijo `ROLE_` lo añade automáticamente `hasRole`, no hace falta escribirlo). Si un `USER` normal llama a este endpoint, Spring Security lanza `AccessDeniedException` **antes** de que se ejecute el cuerpo del método — nunca llega a `userRepository.findAll()`.
+`hasRole('ADMIN')` compara contra las autoridades del usuario autenticado (`ROLE_ADMIN`, que añade `UserPrincipal.getAuthorities()` — el prefijo `ROLE_` lo añade automáticamente `hasRole`, no hace falta escribirlo). Si un `USER` normal llama a este endpoint, Spring Security lanza `AccessDeniedException` **antes** de que se ejecute el cuerpo del método — nunca llega a `userService.findAll()`.
+
+Aunque el endpoint solo lista usuarios, el controlador no llama a `UserRepository` directamente: pasa por `UserService`, que hace la consulta y convierte cada `User` en un `UserSummary` (el DTO que evita exponer el hash de la contraseña). Incluso una lectura trivial respeta las [capas](/docs/01-fundamentos/capas) — si un controlador sí puede saltarse el servicio y el de al lado no, la regla deja de ser una regla.
 
 Nota el porqué de elegir uno u otro: `/admin/users` es "todo o nada" según el rol, así que `@PreAuthorize` es la herramienta correcta. `/tasks/{id}` depende de datos (¿es tuya o no?) que no existen todavía cuando se evalúa la anotación — por eso vive en el servicio.
 
