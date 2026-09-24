@@ -13,16 +13,19 @@ El flujo completo, de principio a fin:
 sequenceDiagram
     actor Cliente
     participant AuthController
+    participant AuthService
     participant JwtService
     participant Filtro as Filtro JWT
     participant TaskController
 
     Cliente->>AuthController: POST /auth/register
-    AuthController->>JwtService: generateToken(username, role)
+    AuthController->>AuthService: register(request)
+    AuthService->>JwtService: generateToken(username, role)
     AuthController-->>Cliente: 201 Created { token }
 
     Cliente->>AuthController: POST /auth/login
-    AuthController->>JwtService: generateToken(username, role)
+    AuthController->>AuthService: login(request)
+    AuthService->>JwtService: generateToken(username, role)
     AuthController-->>Cliente: 200 OK { token }
 
     Cliente->>Filtro: GET /tasks (Authorization: Bearer token)
@@ -34,18 +37,44 @@ sequenceDiagram
 
 El registro y el login emiten el token de la misma forma (`JwtService.generateToken`) — la única diferencia entre ambos es si el usuario se crea (`register`) o ya existía (`login`). De ahí en adelante, cada petición protegida repite el mismo patrón: el cliente manda el token en el header `Authorization`, el filtro lo valida y rellena el contexto de seguridad **antes** de que la petición llegue al controlador — el controlador nunca ve el token en sí, solo un usuario ya autenticado.
 
+## El controlador solo delega
+
+```java
+@RestController
+public class AuthController {
+
+    private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
+    @PostMapping("/auth/register")
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
+    }
+
+    @PostMapping("/auth/login")
+    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
+        return authService.login(request);
+    }
+}
+```
+
+`AuthController` no toca `UserRepository`, ni `PasswordEncoder`, ni `JwtService`: valida la entrada (`@Valid`), llama al servicio y decide el código HTTP (201 en el registro). Es la misma regla de [Capas: controller → service → repository](/docs/01-fundamentos/capas) que ya sigue `TaskController` — que la autenticación tenga que ver con seguridad no la convierte en una excepción. Comprobar si el usuario ya existe, codificar la contraseña, guardarlo y emitir el token son reglas de negocio, y viven en `AuthServiceImpl`, donde además `@Transactional` agrupa la comprobación y el guardado en una sola transacción.
+
 ## Registro
 
 ```java
-@PostMapping("/auth/register")
-public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+@Override
+@Transactional
+public AuthResponse register(RegisterRequest request) {
     if (userRepository.existsByUsername(request.username())) {
         throw new UsernameAlreadyExistsException(request.username());
     }
     User user = new User(request.username(), passwordEncoder.encode(request.password()), Role.USER);
     userRepository.save(user);
-    String token = jwtService.generateToken(user.getUsername(), user.getRole());
-    return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(token));
+    return new AuthResponse(jwtService.generateToken(user.getUsername(), user.getRole()));
 }
 ```
 
@@ -54,14 +83,14 @@ Todo usuario nuevo nace con rol `USER` — no existe una forma de auto-asignarse
 ## Login
 
 ```java
-@PostMapping("/auth/login")
-public AuthResponse login(@Valid @RequestBody LoginRequest request) {
+@Override
+@Transactional(readOnly = true)
+public AuthResponse login(LoginRequest request) {
     authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(request.username(), request.password()));
     User user = userRepository.findByUsername(request.username())
             .orElseThrow(() -> new IllegalStateException("Usuario autenticado pero no encontrado"));
-    String token = jwtService.generateToken(user.getUsername(), user.getRole());
-    return new AuthResponse(token);
+    return new AuthResponse(jwtService.generateToken(user.getUsername(), user.getRole()));
 }
 ```
 
@@ -139,4 +168,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 `OncePerRequestFilter` garantiza que el filtro corre exactamente una vez por petición. Si el header `Authorization` trae un `Bearer <token>` válido, el filtro rellena el `SecurityContextHolder` — de ahí en adelante, para el resto de la petición (controllers incluidos), Spring Security actúa como si el usuario se hubiera autenticado de la forma tradicional. Si no hay token, o es inválido, simplemente no se rellena nada y la petición sigue: será `authorizeHttpRequests` (o `@PreAuthorize`) quien la rechace más adelante si el endpoint requería autenticación.
 
-Registrado en `SecurityConfig` con `addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)`. Ese `UsernamePasswordAuthenticationFilter` no está realmente en la cadena de filtros en este proyecto — nunca se activa (`SecurityConfig` no llama a `formLogin()`), así que su clase solo se usa aquí como punto de referencia de orden ("mi filtro corre antes de donde iría ese filtro, si existiera"), no porque intervenga en ninguna petición. El login (`/auth/login`) tampoco pasa por él: va directo a través de `authenticationManager.authenticate(...)` dentro de `AuthController`.
+Registrado en `SecurityConfig` con `addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)`. Ese `UsernamePasswordAuthenticationFilter` no está realmente en la cadena de filtros en este proyecto — nunca se activa (`SecurityConfig` no llama a `formLogin()`), así que su clase solo se usa aquí como punto de referencia de orden ("mi filtro corre antes de donde iría ese filtro, si existiera"), no porque intervenga en ninguna petición. El login (`/auth/login`) tampoco pasa por él: va directo a través de `authenticationManager.authenticate(...)` dentro de `AuthServiceImpl`.

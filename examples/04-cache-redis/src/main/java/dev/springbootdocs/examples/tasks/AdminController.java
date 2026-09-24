@@ -8,17 +8,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AdminController {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public AdminController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public AdminController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping("/admin/users")
     @PreAuthorize("hasRole('ADMIN')")
     public List<UserSummary> listUsers() {
-        return userRepository.findAll().stream()
-                .map(user -> new UserSummary(user.getId(), user.getUsername(), user.getRole().name()))
-                .toList();
+        return userService.findAll();
     }
 }
