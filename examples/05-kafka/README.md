@@ -71,7 +71,8 @@ Tras un `POST /tasks`, debería aparecer un mensaje JSON con el evento `CREATED`
 
 Usan H2 en memoria + `EmbeddedKafkaBroker` (un broker Kafka real embebido en el proceso de test, no un mock) — no requieren Docker. Los tests obtienen JWT reales registrando/logueando usuarios contra el propio API.
 
-## Pendiente de verificación
+## Qué cubre el CI y qué no
 
-- `docker-compose.yml` nunca se levantó de verdad en el entorno donde se desarrolló este ejemplo (sin Docker disponible) — Postgres y Kafka reales quedan sin probar end-to-end.
-- La columna `created_at TIMESTAMP` de `notifications` (mapeada desde `Instant` en `Notification.createdAt`) pasa `ddl-auto: validate` contra H2, pero no se verificó contra un Postgres real — Hibernate 6 normalmente prefiere `TIMESTAMPTZ`/`timestamp with time zone` para `Instant`, y aunque es muy probable que el validador de esquema de Hibernate también la acepte ahí por un match de prefijo, queda sin confirmar.
+El CI ejecuta `./mvnw verify` con H2 y el broker embebido: no levanta el `docker-compose.yml`. Ese archivo sigue la configuración oficial de la imagen `apache/kafka` en modo KRaft (un solo nodo, sin ZooKeeper), pero la combinación completa Postgres + Kafka en Docker no tiene un test automático. Si al levantarla algo no funciona como describe este README, abre un issue.
+
+La validación de esquema sí está comprobada con las reglas de Postgres: la columna `created_at TIMESTAMP` de `notifications` (mapeada desde `Instant`) pasa `ddl-auto: validate` también con `PostgreSQLDialect`, no solo con el dialecto de H2.

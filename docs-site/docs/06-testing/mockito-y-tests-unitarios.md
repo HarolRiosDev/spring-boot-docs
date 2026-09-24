@@ -5,7 +5,7 @@ sidebar_position: 2
 
 # Mockito y tests unitarios
 
-Hasta esta fase, **todos** los tests del sitio han sido de integración: `@SpringBootTest` levanta el contexto completo de Spring, una base de datos real (H2), y se ejercita el API entero vía HTTP con MockMvc. Es una herramienta potente, pero no la única — y saber cuándo cambiar a un test unitario puro con Mockito es, en la práctica, uno de los criterios que menos se enseña bien. Antes de ver código, el criterio.
+Hasta esta fase, casi todos los tests del sitio han sido de integración: `@SpringBootTest` levanta el contexto completo de Spring, una base de datos real (H2), y se ejercita el API entero vía HTTP con MockMvc. Los pocos unitarios (`JwtServiceTest`, `GlobalExceptionHandlerTest`) probaban clases sin colaboradores, que bastaba con crear con `new`; lo nuevo aquí es aislar una clase que **sí** depende de otras. Es una herramienta potente, pero no la única — y saber cuándo cambiar a un test unitario puro con Mockito es, en la práctica, uno de los criterios que menos se enseña bien. Antes de ver código, el criterio.
 
 ## Cuándo sí, cuándo no
 

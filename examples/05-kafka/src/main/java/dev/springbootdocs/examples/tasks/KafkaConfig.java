@@ -63,7 +63,7 @@ public class KafkaConfig {
      * {@code ObjectProvider<ConsumerFactory<Object, Object>>} que la auto-configuración usa
      * para construir su propio {@code kafkaListenerContainerFactory} — así que, sin este bean,
      * Spring Boot termina construyendo un consumer factory genérico propio, sin el
-     * {@code group.id} que configuramos arriba, y {@code @KafkaListener} (Step 8) falla al
+     * {@code group.id} que configuramos arriba, y {@code @KafkaListener} de {@code TaskEventListener} falla al
      * arrancar con "No group.id found". Al definir aquí el bean con el nombre exacto que
      * {@code @KafkaListener} busca por defecto, la auto-configuración de Boot retrocede
      * (@ConditionalOnMissingBean) y se usa este, construido sobre nuestro consumerFactory.

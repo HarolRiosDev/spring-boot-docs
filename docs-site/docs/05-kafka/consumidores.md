@@ -38,9 +38,9 @@ public class TaskEventListener {
 
 ## Qué pasa con un mensaje que no se puede procesar
 
-`userRepository.findByUsername(event.ownerUsername())` puede no encontrar a nadie — no debería pasar en el flujo normal (el productor siempre usa un username real), pero un mensaje corrupto, o de una versión anterior del esquema, sí podría llegar así alguna vez. `ifPresent` lo ignora silenciosamente: no lanza una excepción que haría que Spring Kafka reintente el mismo mensaje indefinidamente.
+`userRepository.findByUsername(event.ownerUsername())` puede no encontrar a nadie — no debería pasar en el flujo normal (el productor siempre usa un username real), pero un mensaje corrupto, o de una versión anterior del esquema, sí podría llegar así alguna vez. `ifPresent` lo ignora silenciosamente, sin lanzar una excepción. Si el listener lanzara una, el manejador de errores por defecto de Spring Kafka (`DefaultErrorHandler`) reintentaría el mismo mensaje hasta 10 veces seguidas y después lo descartaría, dejando solo un error en el log: diez intentos inútiles para un mensaje que nunca va a poder procesarse.
 
-Esto es una simplificación deliberada. En un sistema real, un mensaje que no se puede procesar normalmente se manda a una **dead-letter queue** — un topic aparte donde se acumulan los mensajes fallidos para revisarlos manualmente, en vez de perderlos silenciosamente o bloquear el consumidor reintentando para siempre. Esta fase no la implementa (fuera de alcance del spec), pero vale la pena saber que existe: es lo primero que se añadiría antes de llevar este patrón a producción de verdad.
+Esto es una simplificación deliberada. En un sistema real, un mensaje que no se puede procesar normalmente se manda a una **dead-letter queue** — un topic aparte donde se acumulan los mensajes fallidos para revisarlos manualmente, en vez de perderlos en silencio. Este ejemplo no la implementa, pero vale la pena saber que existe: es lo primero que se añadiría antes de llevar este patrón a producción de verdad (en Spring Kafka, con un `DeadLetterPublishingRecoverer` conectado al `DefaultErrorHandler`).
 
 ## Un consumidor no sabe quién lo llamó
 

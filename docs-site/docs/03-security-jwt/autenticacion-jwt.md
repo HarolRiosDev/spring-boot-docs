@@ -129,7 +129,7 @@ public class JwtService {
 
 Usamos la librería [`jjwt`](https://github.com/jwtk/jjwt) para construir y firmar el token con una clave HMAC (simétrica: la misma clave firma y verifica, guardada en `application.yml` como `app.jwt.secret`, nunca en el código). El `subject` es el username; el claim `"role"` viaja también en el token, pero es solo informativo — como verás en [Roles y autorización](./roles-y-autorizacion), la autorización real no confía en ese claim.
 
-:::caution Secreto en un proyecto real
+:::caution[Secreto en un proyecto real]
 Que el secreto no esté escrito en el código Java no basta: no debe llegar tampoco en texto plano al repositorio. El `application.yml` de este ejemplo lo define como `secret: "${JWT_SECRET:local-dev-secret-please-change-in-production-0123456789abcdef}"` — la sintaxis `${VAR:valor-por-defecto}` de Spring lee la variable de entorno `JWT_SECRET` si existe, y solo cae al valor local de desarrollo cuando no se define. En un despliegue real, `JWT_SECRET` se inyecta desde el entorno (o un gestor de secretos) y nunca se comitea.
 :::
 

@@ -42,6 +42,6 @@ Una clase interna no estática anotada `@Nested` agrupa tests relacionados bajo 
 
 ## Ciclo de vida: `@BeforeEach` vs `@BeforeAll`
 
-Un método `@BeforeEach` se ejecuta antes de **cada** test — es el que ya se viene usando implícitamente en este proyecto vía la inyección de `MockMvc`/`ObjectMapper` con `@Autowired` (Spring los reinyecta en cada instancia de test, una instancia por método por defecto). Un método `@BeforeAll` se ejecuta **una sola vez**, antes de todos los tests de la clase — debe ser `static` a menos que la clase use `@TestInstance(Lifecycle.PER_CLASS)`.
+Un método `@BeforeEach` se ejecuta antes de **cada** test. Por defecto JUnit crea una instancia nueva de la clase de test para cada método, y algo parecido ya venía pasando en este proyecto sin escribir ningún `@BeforeEach`: Spring rellena los campos `@Autowired` (`MockMvc`, `ObjectMapper`) en cada una de esas instancias nuevas, antes de que corra el test. Un método `@BeforeAll` se ejecuta **una sola vez**, antes de todos los tests de la clase — debe ser `static` a menos que la clase use `@TestInstance(Lifecycle.PER_CLASS)`.
 
 La diferencia importa para el costo y el aislamiento: algo que se pueda compartir sin efectos secundarios entre tests (por ejemplo, un contenedor de Testcontainers — ver [Testcontainers](./testcontainers)) va en `@BeforeAll`/un campo `static`, porque levantarlo una vez por clase es mucho más barato que una vez por test. Algo que un test pueda mutar y que otro test no deba heredar (como el estado de un mock) va en `@BeforeEach`.

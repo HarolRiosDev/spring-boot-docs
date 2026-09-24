@@ -13,7 +13,12 @@ Cada `Task` tiene un dueño (`user_id`). Decidir si la petición actual puede ac
 
 ```java
 @Override
-public Task findById(Long id, User currentUser) {
+@Transactional(readOnly = true)
+public TaskResponse findById(Long id, User currentUser) {
+    return TaskResponse.from(getTaskForCurrentUser(id, currentUser));
+}
+
+private Task getTaskForCurrentUser(Long id, User currentUser) {
     Task task = taskRepository.findById(id)
             .orElseThrow(() -> new TaskNotFoundException(id));
     requireAccess(task, currentUser);
@@ -31,7 +36,7 @@ private void requireAccess(Task task, User currentUser) {
 
 Una tarea ajena para un `USER` devuelve **403 Forbidden**, nunca 404 — 404 se reserva para "esta tarea no existe para nadie". Mezclarlos filtraría información: un 404 en vez de un 403 le diría a un atacante que probó IDs al azar cuáles existen y cuáles no.
 
-`update` y `delete` reutilizan `findById` como primer paso, así que heredan la misma comprobación sin repetirla.
+`update` y `delete` empiezan llamando a `getTaskForCurrentUser`, así que heredan la misma comprobación sin repetirla. Ese método privado devuelve la entidad `Task` (la necesitan para modificarla o borrarla); solo `findById` la convierte en `TaskResponse`, el DTO que sale hacia el cliente.
 
 ## `@PreAuthorize`: autorización declarativa por rol
 
@@ -57,7 +62,7 @@ El JWT lleva un claim `"role"` (ver [Autenticación con JWT](./autenticacion-jwt
 
 ## Respuestas de error consistentes
 
-Por defecto, Spring Security responde a un fallo de autenticación/autorización con una redirección o una página HTML — pensado para un navegador, no para un cliente de API. Dos componentes propios lo sustituyen por el mismo formato `ApiError` que ya usa `GlobalExceptionHandler`:
+Por defecto, Spring Security no devuelve nada útil para un cliente de API: con `formLogin()` redirige a una página de login (pensado para un navegador), y sin él —como aquí— responde con el cuerpo vacío. Peor aún, sin `formLogin()` ni `httpBasic()` el punto de entrada por defecto (`Http403ForbiddenEntryPoint`) responde **403** también cuando falta el token, en vez del 401 que corresponde. Dos componentes propios lo sustituyen por el mismo formato `ApiError` que ya usa `GlobalExceptionHandler`:
 
 ```java
 @Component

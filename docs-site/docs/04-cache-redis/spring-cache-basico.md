@@ -51,7 +51,7 @@ Y una decisión que parece un detalle y no lo es: el método llama a `findByIdWi
 
 Spring implementa `@Cacheable` con un **proxy AOP**: envuelve el bean real en un objeto intermediario que intercepta las llamadas externas y decide si ejecuta el método real o devuelve el valor cacheado. Ese proxy solo entra en juego cuando la llamada llega **desde fuera** del bean, a través de la referencia que Spring inyectó. Una llamada `this.metodo()` hecha desde dentro de la propia clase nunca pasa por el proxy — la JVM la resuelve directamente sobre `this`, sin que Spring tenga oportunidad de interceptarla.
 
-Si `findById` fuera un método privado de `TaskServiceImpl` en vez de vivir en `CachedTaskLookup`, y otro método de esa misma clase lo llamara como `this.findById(id)`, la anotación `@Cacheable` se ignoraría por completo — sin ningún error en consola, sin ninguna excepción, simplemente sin cachear nunca. Es uno de los bugs de Spring Cache más difíciles de detectar precisamente porque no falla de forma ruidosa.
+Si `findById` fuera un método público de `TaskServiceImpl` en vez de vivir en `CachedTaskLookup`, y otro método de esa misma clase lo llamara como `this.findById(id)`, la anotación `@Cacheable` se ignoraría por completo (y en un método `private` ni siquiera haría falta la auto-invocación: el proxy no puede interceptar métodos privados en ningún caso) — sin ningún error en consola, sin ninguna excepción, simplemente sin cachear nunca. Es uno de los bugs de Spring Cache más difíciles de detectar precisamente porque no falla de forma ruidosa.
 
 ```java
 @Service

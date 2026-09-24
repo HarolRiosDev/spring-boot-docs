@@ -87,9 +87,9 @@ La línea que de verdad conecta todo es la última: `return builder -> builder.c
 
 ## Un gotcha de nombres, no de diseño
 
-Dos parejas de clases con el mismo nombre simple conviven en el classpath de este proyecto y es fácil importar la equivocada:
+Dos imports de esta clase son fáciles de equivocar:
 
-- `RedisCacheConfiguration` existe tanto en `org.springframework.boot.autoconfigure.cache` (de Spring Boot, no se usa aquí) como en `org.springframework.data.redis.cache` (de Spring Data Redis, la correcta para `entryTtl`/`serializeValuesWith`).
-- `RedisCacheManagerBuilderCustomizer` vive en `org.springframework.boot.cache.autoconfigure` en Spring Boot 4.x — un paquete distinto al de versiones anteriores de Spring Boot.
+- `RedisCacheConfiguration` existe dos veces en el classpath, con el mismo nombre simple: en `org.springframework.boot.cache.autoconfigure` (interna de Spring Boot, no se usa aquí) y en `org.springframework.data.redis.cache` (de Spring Data Redis, la correcta para `entryTtl`/`serializeValuesWith`).
+- `RedisCacheManagerBuilderCustomizer` vive en `org.springframework.boot.cache.autoconfigure` en Spring Boot 4.x. En Spring Boot 3.x estaba en `org.springframework.boot.autoconfigure.cache`, así que un tutorial anterior te dará un import que ya no compila.
 
 Ninguno de los dos es un problema de diseño: es puramente que el IDE puede autocompletar el import equivocado si no se presta atención.

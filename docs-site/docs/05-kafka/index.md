@@ -16,3 +16,9 @@ Hasta ahora, cada acción del API terminaba en la respuesta HTTP. Esta fase aña
 ## Ejemplo ejecutable
 
 Todo el código de esta fase vive en [`examples/05-kafka`](https://github.com/HarolRiosDev/spring-boot-docs/tree/main/examples/05-kafka): el mismo API de gestión de tareas con auth JWT y caché de la Fase 4, con notificaciones asíncronas añadidas encima.
+
+```bash
+cd examples/05-kafka
+docker compose up -d
+./mvnw spring-boot:run
+```

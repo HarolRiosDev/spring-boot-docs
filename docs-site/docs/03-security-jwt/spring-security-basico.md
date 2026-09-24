@@ -30,7 +30,7 @@ public class SecurityConfig {
 }
 ```
 
-- `csrf().disable()` — la protección CSRF existe para clientes con sesión y cookies (un navegador). Nuestro API es *stateless* (sin sesión, cada petición lleva su propio JWT), así que CSRF no aplica.
+- `csrf(AbstractHttpConfigurer::disable)` — la protección CSRF existe para clientes con sesión y cookies (un navegador). Nuestro API es *stateless* (sin sesión, cada petición lleva su propio JWT), así que CSRF no aplica.
 - `sessionCreationPolicy(STATELESS)` — Spring Security no crea ni usa `HttpSession`. Cada petición se autentica desde cero a partir del token, no de un estado guardado en el servidor.
 - `authorizeHttpRequests` — `/auth/**` (registro y login) es público; todo lo demás requiere estar autenticado.
 - `@EnableMethodSecurity` — habilita `@PreAuthorize` sobre métodos de controller, usado más adelante en [Roles y autorización](./roles-y-autorizacion).
@@ -74,3 +74,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 `UserPrincipal` es una clase propia que implementa `UserDetails` envolviendo nuestra entidad `User` — así el resto de Spring Security (y nuestros propios controllers, vía `@AuthenticationPrincipal`) puede acceder tanto a lo que Spring Security necesita (`getUsername()`, `getPassword()`, `getAuthorities()`) como al `User` completo con su `id`, que hace falta para comprobar quién es el dueño de una tarea.
 
 Con `UserDetailsServiceImpl` y `passwordEncoder()` como los únicos beans de ese tipo en el contexto, Spring Security ensambla automáticamente un `AuthenticationManager` capaz de validar credenciales contra la base de datos — sin que tengamos que conectarlos a mano.
+
+Ese `AuthenticationManager` existe, pero Spring Security no lo publica como bean que se pueda inyectar. Como `AuthServiceImpl` lo necesita para el login, `SecurityConfig` lo expone con un `@Bean` de una línea:
+
+```java
+@Bean
+public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    return config.getAuthenticationManager();
+}
+```
+
+`AuthenticationConfiguration` es donde Spring Security guarda el que ya montó: el `@Bean` solo lo hace visible, no crea uno nuevo.
