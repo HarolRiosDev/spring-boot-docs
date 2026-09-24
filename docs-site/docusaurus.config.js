@@ -1,5 +1,5 @@
 // @ts-check
-const {themes: prismThemes} = require('prism-react-renderer');
+const {intellijLight, intellijDark} = require('./src/prism/intellij');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -18,7 +18,6 @@ const config = {
   projectName: 'spring-boot-docs',
 
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
 
   i18n: {
     defaultLocale: 'es',
@@ -27,6 +26,9 @@ const config = {
 
   markdown: {
     mermaid: true,
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
   },
   themes: ['@docusaurus/theme-mermaid'],
 
@@ -119,8 +121,8 @@ const config = {
         copyright: `Copyright © ${new Date().getFullYear()} Spring Boot desde cero.`,
       },
       prism: {
-        theme: prismThemes.oneLight,
-        darkTheme: prismThemes.oneDark,
+        theme: intellijLight,
+        darkTheme: intellijDark,
         additionalLanguages: ['java', 'bash', 'sql'],
       },
       mermaid: {
