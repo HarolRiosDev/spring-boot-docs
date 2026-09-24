@@ -7,6 +7,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import dev.springbootdocs.examples.tasks.dto.LoginRequest;
+import dev.springbootdocs.examples.tasks.dto.RegisterRequest;
+import dev.springbootdocs.examples.tasks.dto.TaskRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,10 +23,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Verifies caching against the REAL CacheManager the test profile wires up
- * (ConcurrentMapCacheManager, via spring.cache.type: simple) — not a mock of the cache
- * abstraction. This is the same @Cacheable/@CacheEvict machinery that runs against
- * Redis in production; only the backend differs.
+ * Comprueba la caché contra el CacheManager REAL que configura el perfil de test
+ * (ConcurrentMapCacheManager, vía spring.cache.type: simple), no contra un mock de la
+ * abstracción de caché. Es la misma maquinaria de @Cacheable/@CacheEvict que corre contra
+ * Redis en producción; solo cambia el backend.
  */
 @SpringBootTest
 @AutoConfigureMockMvc

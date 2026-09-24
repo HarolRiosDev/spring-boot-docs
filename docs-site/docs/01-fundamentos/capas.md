@@ -58,3 +58,28 @@ Cada capa se puede razonar, cambiar y (más adelante, en la Fase 6) testear de f
 - El controller queda pequeño y fácil de leer: es solo el "traductor" entre HTTP y las operaciones del service.
 
 Este es exactamente el mismo patrón que verás en el resto del roadmap — cada fase nueva añade capas o las reemplaza (por ejemplo, la Fase 2 sustituye `InMemoryTaskRepository` por una implementación con Spring Data JPA), pero el `TaskController` y el `TaskService` apenas cambian.
+
+## Un paquete por capa
+
+Las capas no son solo una idea: en los ejemplos, cada una vive en su propio paquete. Así queda `examples/01-fundamentos`:
+
+```
+dev.springbootdocs.examples.tasks
+├── TasksApplication.java         (arranque: @SpringBootApplication)
+├── controller/   TaskController
+├── service/      TaskService, TaskServiceImpl
+├── repository/   TaskRepository, InMemoryTaskRepository
+├── model/        Task
+├── dto/          TaskRequest
+└── exception/    GlobalExceptionHandler, ApiError, ValidationApiError, TaskNotFoundException
+```
+
+- `model/` guarda los objetos del dominio (más adelante, las entidades JPA). `dto/` guarda los objetos que entran y salen por HTTP, que no siempre coinciden con el modelo.
+- `exception/` junta las excepciones propias y el manejador global que las traduce a respuestas HTTP (ver [Manejo de errores](./manejo-errores)).
+- Las fases siguientes añaden paquetes con el mismo criterio: `security/` en la Fase 3, `config/` en la Fase 4, `messaging/` en la Fase 5.
+
+La clase `@SpringBootApplication` se queda en el paquete raíz a propósito: Spring busca componentes (`@Service`, `@RestController`, entidades, repositorios...) en el paquete de esa clase **y en todos sus subpaquetes**. Si la movieras dentro de `controller/`, Spring dejaría de encontrar todo lo que está en `service/`, `repository/`, etc.
+
+Los tests siguen la misma estructura: `TaskControllerTest` vive en el paquete `controller` de `src/test/java`, al lado (en espejo) de la clase que prueba.
+
+Organizar por capa no es la única opción. En proyectos grandes también es muy común organizar **por funcionalidad** (`task/`, `user/`, `auth/`...), con el controller, el service y el repository de cada funcionalidad juntos en su paquete. Aquí usamos capas porque hacen visible, en la propia estructura de carpetas, lo que enseña esta página.

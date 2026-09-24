@@ -1,0 +1,11 @@
+package dev.springbootdocs.examples.tasks.repository;
+
+import dev.springbootdocs.examples.tasks.model.Notification;
+import dev.springbootdocs.examples.tasks.model.User;
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface NotificationRepository extends JpaRepository<Notification, Long> {
+
+    List<Notification> findByUser(User user);
+}
