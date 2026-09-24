@@ -7,6 +7,33 @@ sidebar_position: 2
 
 Un **JWT** (JSON Web Token) es un token firmado que contiene información (*claims*) sobre quién es el usuario. A diferencia de una sesión de servidor, el propio token lleva la prueba de identidad — el servidor no necesita guardar nada para verificarlo, solo comprobar la firma. Esta fase usa un JWT **propio**: lo emite y lo valida la misma aplicación, sin depender de un proveedor externo (Keycloak, Auth0...).
 
+El flujo completo, de principio a fin:
+
+```mermaid
+sequenceDiagram
+    actor Cliente
+    participant AuthController
+    participant JwtService
+    participant Filtro as Filtro JWT
+    participant TaskController
+
+    Cliente->>AuthController: POST /auth/register
+    AuthController->>JwtService: generateToken(username, role)
+    AuthController-->>Cliente: 201 Created { token }
+
+    Cliente->>AuthController: POST /auth/login
+    AuthController->>JwtService: generateToken(username, role)
+    AuthController-->>Cliente: 200 OK { token }
+
+    Cliente->>Filtro: GET /tasks (Authorization: Bearer token)
+    Filtro->>JwtService: isValid(token) / extractUsername(token)
+    Filtro->>Filtro: rellena SecurityContextHolder
+    Filtro->>TaskController: petición ya autenticada
+    TaskController-->>Cliente: 200 OK
+```
+
+El registro y el login emiten el token de la misma forma (`JwtService.generateToken`) — la única diferencia entre ambos es si el usuario se crea (`register`) o ya existía (`login`). De ahí en adelante, cada petición protegida repite el mismo patrón: el cliente manda el token en el header `Authorization`, el filtro lo valida y rellena el contexto de seguridad **antes** de que la petición llegue al controlador — el controlador nunca ve el token en sí, solo un usuario ya autenticado.
+
 ## Registro
 
 ```java

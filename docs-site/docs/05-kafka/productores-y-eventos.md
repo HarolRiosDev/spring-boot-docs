@@ -7,6 +7,23 @@ sidebar_position: 1
 
 Cuando se crea o se completa una tarea, se publica un mensaje al topic `task-events`. Antes de ver el código del productor, la pregunta que importa: ¿en qué momento exacto se envía ese mensaje?
 
+El flujo completo, de punta a punta:
+
+```mermaid
+flowchart LR
+    subgraph TX["Transacción de TaskServiceImpl"]
+        A["POST /tasks o PUT /tasks/{id}"] --> B["taskRepository.save(...)"]
+        B --> C["eventPublisher.publishEvent(TaskEvent)"]
+    end
+    C -.->|"solo si la transacción<br/>confirma (AFTER_COMMIT)"| D["TaskEventPublisher"]
+    D --> E[("topic task-events")]
+    E --> F["TaskEventListener<br/>(consumidor)"]
+    F --> G["Notification guardada"]
+    G --> H["GET /notifications"]
+```
+
+La línea punteada es la parte que importa: `TaskEvent` se publica *dentro* de la transacción (`C`), pero el salto a Kafka (`D`) solo ocurre si esa transacción confirma — nunca antes, nunca si hace rollback. Todo lo que está a la derecha de esa línea (el consumidor, la notificación, el endpoint) vive en un proceso lógicamente separado del que atendió la petición HTTP original.
+
 ## El problema de publicar demasiado pronto
 
 ```java
