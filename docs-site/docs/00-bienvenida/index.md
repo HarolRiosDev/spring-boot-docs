@@ -26,7 +26,7 @@ Está pensado para alguien que **ya sabe Java** (POO, colecciones, algo de lambd
 | 4 | Caché y Redis: Spring Cache, Redis, invalidación | `04-cache-redis` |
 | 5 | Mensajería: Kafka, productores/consumidores, notificaciones | `05-kafka` |
 | 6 | Testing: JUnit, Mockito, Testcontainers | `06-testing` |
-| 7 | Producción: Actuator, métricas, logging, Docker | `07-observabilidad` |
+| 7 | Producción: Actuator, métricas, logging, trazas, OpenAPI | `07-observabilidad` |
 
 Cada sección todavía en construcción lo indica claramente — el índice completo ya está aquí para que veas el mapa completo desde el día uno.
 

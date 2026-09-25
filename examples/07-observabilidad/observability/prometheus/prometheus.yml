@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: tasks-api
+    metrics_path: /actuator/prometheus
+    static_configs:
+      # el puerto de gestión (8081) de la app que corre en el host
+      - targets: ["host.docker.internal:8081"]

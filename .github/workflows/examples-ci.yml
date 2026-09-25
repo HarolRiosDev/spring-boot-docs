@@ -27,6 +27,7 @@ jobs:
           - 04-cache-redis
           - 05-kafka
           - 06-testing
+          - 07-observabilidad
     defaults:
       run:
         working-directory: examples/${{ matrix.example }}

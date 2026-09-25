@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: 07-observabilidad
+  datasource:
+    url: jdbc:postgresql://localhost:5438/tasks_observability
+    username: tasks_observability
+    password: tasks_observability
+  flyway:
+    enabled: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  cache:
+    # declarar la caché al arrancar hace que sus métricas existan desde el principio
+    cache-names: tasks
+    redis:
+      # sin esto, RedisCacheManager no cuenta aciertos ni fallos
+      enable-statistics: true
+
+management:
+  server:
+    # puerto de gestión: lo usan Prometheus y los chequeos internos, no se publica hacia fuera
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+      roles: ADMIN
+      probes:
+        enabled: true
+      group:
+        readiness:
+          # sin base de datos la app no puede atender peticiones: deja de recibir tráfico,
+          # pero no se reinicia (liveness no la incluye)
+          include: readinessState, db
+  metrics:
+    distribution:
+      percentiles-histogram:
+        # publica los buckets del histograma para calcular el p95 en Prometheus
+        http.server.requests: true
+
+app:
+  jwt:
+    secret: "${JWT_SECRET:local-dev-secret-please-change-in-production-0123456789abcdef}"
+    expiration-millis: 3600000

@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: 07-observabilidad
+  datasource:
+    url: jdbc:h2:mem:tasks_observability;MODE=PostgreSQL
+    username: sa
+    password:
+  flyway:
+    enabled: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  cache:
+    type: simple
+    # ConcurrentMapCacheManager (type: simple) no publica métricas. Estas dos propiedades
+    # las usan los tests que activan la caché de Redis de producción (spring.cache.type=redis):
+    # GrafanaDashboardMetricsTest y TaskApiIT
+    cache-names: tasks
+    redis:
+      enable-statistics: true
+
+# Sin management.server.port: en los tests Actuator comparte puerto con la API para poder
+# usar MockMvc. ActuatorEndpointsTest fija un puerto de gestión propio con "properties".
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+      roles: ADMIN
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState, db
+  health:
+    redis:
+      # los tests usan la caché simple y no tienen Redis: su health check daría DOWN
+      enabled: false
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+
+app:
+  jwt:
+    secret: "test-secret-key-for-integration-tests-only-0123456789abcdef"
+    expiration-millis: 3600000
