@@ -14,11 +14,11 @@ import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 /**
  * Test unitario puro: ejercita el MISMO serializador que {@link CacheConfig} instala para
- * los valores de la cache Redis, sin necesitar Redis (ni contexto de Spring) para nada.
+ * los valores de la caché de Redis, sin necesitar Redis (ni contexto de Spring) para nada.
  *
  * <p>Existe porque el perfil de test usa {@code spring.cache.type: simple}, que guarda el
- * objeto en memoria tal cual y nunca lo serializa — asi que ningun test de integracion
- * puede detectar un fallo de serializacion. Este si.
+ * objeto en memoria tal cual y nunca lo serializa — así que ningún test de integración
+ * puede detectar un fallo de serialización. Este sí.
  */
 class CacheValueSerializationTest {
 

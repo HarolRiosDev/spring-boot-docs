@@ -49,8 +49,8 @@ public class User {
 
     /**
      * {@code @JsonIgnore} para que el hash nunca salga en JSON — ni en una respuesta HTTP ni,
-     * sobre todo, dentro del {@code Task} que se guarda serializado en Redis. La autenticacion
-     * sigue leyendolo en Java ({@code UserPrincipal}), que no pasa por Jackson.
+     * sobre todo, dentro del {@code Task} que se guarda serializado en Redis. La autenticación
+     * sigue leyéndolo en Java ({@code UserPrincipal}), que no pasa por Jackson.
      */
     @JsonIgnore
     public String getPassword() {

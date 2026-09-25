@@ -79,15 +79,15 @@ class TaskEventRulesTest {
         String token = registerAndLogin(username);
         Long taskId = createTask(token, true); // ya nace completada -> solo CREATED, nunca COMPLETED
 
-        // Actualizarla otra vez, siempre con completada=true: no hay transicion false->true
+        // Actualizarla otra vez, siempre con completada=true: no hay transición false->true
         mockMvc.perform(put("/tasks/{id}", taskId)
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new TaskRequest("Tarea editada", "desc", true))))
                 .andExpect(status().isOk());
 
-        // Barrera de sincronizacion: crear una SEGUNDA tarea real y esperar su notificacion CREATED.
-        // Como los eventos de un mismo consumer se procesan en orden, cuando esta llega ya se proceso
+        // Barrera de sincronización: crear una SEGUNDA tarea real y esperar su notificación CREATED.
+        // Como los eventos de un mismo consumer se procesan en orden, cuando esta llega ya se procesó
         // (o no) cualquier evento anterior - evita un Thread.sleep arbitrario para probar una ausencia.
         Long secondTaskId = createTask(token, false);
         await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> {
@@ -137,7 +137,7 @@ class TaskEventRulesTest {
             return null;
         });
 
-        // Barrera de sincronizacion: la misma tecnica que en el test de arriba, con una tarea real
+        // Barrera de sincronización: la misma técnica que en el test de arriba, con una tarea real
         // hecha por otro usuario para no interferir con las notificaciones de "diana".
         String otherToken = registerAndLogin("erik");
         Long barrierTaskId = createTask(otherToken, false);

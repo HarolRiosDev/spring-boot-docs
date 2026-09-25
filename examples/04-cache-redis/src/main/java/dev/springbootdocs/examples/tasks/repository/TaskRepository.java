@@ -18,9 +18,9 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
      *
      * <p>Es la consulta que usa {@link dev.springbootdocs.examples.tasks.service.CachedTaskLookup CachedTaskLookup}: lo que devuelve acaba serializado
      * a JSON dentro de Redis, y un proxy perezoso de Hibernate no es serializable de forma
-     * util (su clase real es una subclase sintetica que no existe al deserializar). Aqui la
-     * carga ansiosa es deliberada y acotada a este unico camino — {@code Task.user} sigue
-     * siendo {@code LAZY} por defecto para todos los demas.
+     * útil (su clase real es una subclase sintética que no existe al deserializar). Aquí la
+     * carga ansiosa es deliberada y acotada a este único camino — {@code Task.user} sigue
+     * siendo {@code LAZY} por defecto para todos los demás.
      */
     @Query("select t from Task t join fetch t.user where t.id = :id")
     Optional<Task> findByIdWithUser(@Param("id") Long id);
