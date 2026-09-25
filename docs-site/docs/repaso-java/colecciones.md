@@ -55,7 +55,7 @@ List<Task> tareas = new ArrayList<>();
 ArrayList<Task> tareas = new ArrayList<>();
 ```
 
-La diferencia importa: con `List<Task>` puedes cambiar la implementación real (`ArrayList` → `LinkedList`, por ejemplo) sin tocar el resto del código que usa `tareas` — el mismo principio que hace que `TaskController` no sepa (ni le importe) si, por debajo, `TaskService` está respaldado por una lista en memoria o por Postgres.
+La diferencia importa: con `List<Task>` puedes cambiar la implementación real (`ArrayList` → `LinkedList`, por ejemplo) sin tocar el resto del código que usa `tareas` — el mismo principio que hace que `TaskController` no sepa (ni le importe) si, por debajo, `TaskService` está respaldado por un mapa en memoria o por Postgres.
 
 ## Listas inmutables
 

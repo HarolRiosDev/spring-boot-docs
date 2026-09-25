@@ -73,7 +73,7 @@ public interface TaskRepository {
 }
 ```
 
-Cualquier clase puede `implements TaskRepository` y proveer su propia versión de esos métodos — una respaldada por una lista en memoria, otra por una base de datos real, sin que el código que usa `TaskRepository` sepa (ni le importe) cuál es. Esto **ya lo viste en la práctica** en [Inyección de dependencias](/docs/01-fundamentos/inyeccion-dependencias): `TaskController` depende de la interfaz `TaskService`, nunca de una implementación concreta — es la razón por la que, entre la Fase 1 (una lista en memoria) y la Fase 2 (Postgres real), `TaskController.java` es **exactamente el mismo archivo**, byte a byte, aunque toda la forma de guardar los datos cambió por debajo.
+Cualquier clase puede `implements TaskRepository` y proveer su propia versión de esos métodos — una respaldada por una lista en memoria, otra por una base de datos real, sin que el código que usa `TaskRepository` sepa (ni le importe) cuál es. Lo verás en la práctica en [Inyección de dependencias](/docs/01-fundamentos/inyeccion-dependencias): `TaskController` depende de la interfaz `TaskService`, nunca de una implementación concreta. Por eso, entre la Fase 1 (un mapa en memoria) y la Fase 2 (Postgres real), `TaskController.java` es **exactamente el mismo archivo**, byte a byte, aunque toda la forma de guardar los datos cambia por debajo.
 
 ## Clase abstracta vs. interfaz
 

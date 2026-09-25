@@ -57,7 +57,7 @@ public DefaultErrorHandler kafkaErrorHandler(
 }
 ```
 
-- `DefaultErrorHandler` decide qué hacer cuando el listener lanza una excepción. Con `FixedBackOff(1000L, 2)` reintenta el mismo mensaje 2 veces más, con 1 segundo entre intentos, por si el fallo era pasajero (la base de datos reiniciándose, por ejemplo). Sin configurar nada, lo reintentaría 10 veces seguidas y después lo descartaría, dejando solo un error en el log.
+- `DefaultErrorHandler` decide qué hacer cuando el listener lanza una excepción. Con `FixedBackOff(1000L, 2)` reintenta el mismo mensaje 2 veces más, con 1 segundo entre intentos, por si el fallo era pasajero (la base de datos reiniciándose, por ejemplo). Sin configurar nada, lo intentaría 10 veces seguidas (el intento normal y 9 reintentos, sin pausa) y después lo descartaría, dejando solo un error en el log.
 - `DeadLetterPublishingRecoverer` es lo que pasa cuando se agotan los reintentos: en vez de descartar el mensaje, lo publica en `task-events-dlt` con varios headers que explican el fallo (la clase de la excepción, su mensaje y la traza). El nombre sale del topic original más el sufijo `-dlt`, que es el valor por defecto en Spring Kafka 4. En la versión 3 era `.DLT`, así que muchos tutoriales usan `task-events.DLT`.
 - En cualquiera de los dos casos, el consumidor pasa al mensaje siguiente: un mensaje defectuoso nunca bloquea a los que vienen detrás.
 

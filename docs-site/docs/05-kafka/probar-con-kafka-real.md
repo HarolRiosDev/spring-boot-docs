@@ -10,6 +10,7 @@ sidebar_position: 4
 ## Levantar Kafka real
 
 ```bash
+cd examples/05-kafka
 docker compose up -d
 ```
 
@@ -17,7 +18,7 @@ Levanta Kafka en modo KRaft — un único contenedor, sin Zookeeper (Kafka lo el
 
 ## `GET /notifications`
 
-Con la app corriendo (`./mvnw spring-boot:run`), crear una tarea normalmente vía `POST /tasks` y luego consultar:
+Con la app corriendo (`./mvnw spring-boot:run`), crea una tarea con `POST /tasks` y luego consulta las notificaciones (el `$TOKEN` se obtiene como en [Probar endpoints protegidos](/docs/03-security-jwt/probar-endpoints-protegidos)):
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/notifications

@@ -135,7 +135,7 @@ Que el secreto no esté escrito en el código Java no basta: no debe llegar tamp
 
 ## Validar el token en cada petición
 
-Un filtro propio se ejecuta antes que el resto de Spring Security en cada petición:
+Un filtro propio, dentro de la cadena de filtros de Spring Security, lee el token de cada petición antes de que se decida si puede pasar:
 
 ```java
 @Component

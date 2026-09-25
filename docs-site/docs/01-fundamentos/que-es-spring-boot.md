@@ -25,6 +25,45 @@ En este sitio vas a ver constantemente el mismo patrón: "añade una dependencia
 
 **[start.spring.io](https://start.spring.io)** (Spring Initializr) genera el esqueleto de un proyecto nuevo: eliges lenguaje, versión de Java, tipo de build (Maven o Gradle) y qué *starters* necesitas (marcando casillas como "Spring Web" o "Spring Data JPA") — y descargas un `.zip` ya listo para abrir, con el `pom.xml` correcto y una clase `@SpringBootApplication` de arranque. Así se generó, de hecho, cada uno de los ejemplos ejecutables de este sitio. No hace falta usarlo ahora mismo — pero cuando quieras probar algo por tu cuenta fuera de este sitio, es el punto de partida habitual.
 
+## Tu primera aplicación
+
+El ejemplo [`examples/00-hello-world`](https://github.com/HarolRiosDev/spring-boot-docs/tree/main/examples/00-hello-world) es lo mínimo que se puede tener: dos clases.
+
+```java
+@SpringBootApplication
+public class HelloWorldApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(HelloWorldApplication.class, args);
+    }
+}
+```
+
+```java
+@RestController
+public class HelloController {
+
+    @GetMapping("/hello")
+    public String hello() {
+        return "¡Hola desde Spring Boot!";
+    }
+}
+```
+
+`@SpringBootApplication` marca la clase de arranque: activa la autoconfiguración y la búsqueda de componentes en su paquete. `SpringApplication.run(...)` arranca Spring, crea los objetos que necesita la aplicación y levanta el Tomcat embebido en el puerto 8080. `HelloController` es uno de esos objetos: nadie lo crea con `new` ni lo registra en ningún sitio, Spring lo encuentra solo y conecta la ruta `/hello` con su método. Es la inversión de control del principio de esta página.
+
+```bash
+cd examples/00-hello-world
+./mvnw spring-boot:run
+curl http://localhost:8080/hello
+```
+
+`./mvnw` es el *Maven Wrapper*: la primera vez descarga la versión de Maven que necesita el proyecto, así que solo hace falta tener instalado un JDK 21 o superior. Todos los ejemplos se arrancan igual.
+
+:::tip[En Windows]
+Los comandos de este sitio están escritos para una terminal tipo bash. En Windows, lo más cómodo es usar **Git Bash** (se instala con Git para Windows) o WSL: todo funciona tal cual. En PowerShell, `./mvnw` se escribe `.\mvnw`, y una variable de entorno como `SPRING_PROFILES_ACTIVE=h2 ./mvnw spring-boot:run` se escribe `$env:SPRING_PROFILES_ACTIVE="h2"; .\mvnw spring-boot:run`.
+:::
+
 ## API vs. librería
 
 Otra distinción que aparece constantemente y conviene tener clara desde ahora, porque este sitio usa ambas palabras con su significado más habitual en un equipo backend:

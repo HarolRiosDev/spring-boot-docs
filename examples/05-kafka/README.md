@@ -1,6 +1,6 @@
 # 05-kafka
 
-API REST de gestión de tareas — ejemplo ejecutable de la Fase 5 (Mensajería con Kafka) del sitio **Spring Boot desde cero**. Mismo dominio y mismo API que `04-cache-redis` (auth JWT, roles, ownership, caché) — el endpoint público es idéntico salvo por un endpoint nuevo. La diferencia vive por debajo: crear o completar una tarea publica un evento a Kafka; un consumidor separado lo procesa y guarda una notificación.
+API REST de gestión de tareas — ejemplo ejecutable de la Fase 5 (Mensajería con Kafka) del sitio **Spring Boot desde cero**. Mismo dominio y mismo API que `04-cache-redis` (auth JWT, roles, ownership, caché) — el API público es idéntico salvo por un endpoint nuevo. La diferencia vive por debajo: crear o completar una tarea publica un evento a Kafka; un consumidor separado lo procesa y guarda una notificación.
 
 ## Requisitos
 
@@ -34,7 +34,7 @@ SPRING_PROFILES_ACTIVE=h2 ./mvnw spring-boot:run
 
 Corre la app contra H2 en archivo (`data/tasks_kafka.mv.db`, en `.gitignore`) — a diferencia de Postgres, Kafka no tiene un equivalente para correr sin Docker fuera de tests. Sin un Kafka real en `localhost:9092`, la app arranca y `POST /tasks`/`PUT /tasks/{id}` siguen respondiendo con normalidad, pero no de forma instantánea ni asíncrona: el envío del evento a Kafka ocurre de forma síncrona, en el mismo hilo que atiende la petición HTTP, justo después de que la transacción confirma (`AFTER_COMMIT`), y `KafkaConfig` acota ese envío a 3 segundos vía `max.block.ms`. Sin Kafka disponible, cada `POST /tasks`/`PUT /tasks/{id}` que publica un evento tarda hasta ~3 segundos extra y registra un error en el log — pero siempre termina respondiendo, nunca se queda colgada indefinidamente. Ver [productores-y-eventos.md](../../docs-site/docs/05-kafka/productores-y-eventos.md) para la explicación completa.
 
-Caché: este ejemplo usa `ConcurrentMapCacheManager` (`spring.cache.type: simple`) — esta fase es sobre Kafka, no sobre caché. El `CacheConfig` con Redis se conserva tal cual vino del port de la Fase 4, pero nunca se activa aquí: `docker-compose.yml` no levanta ningún servicio de Redis.
+Caché: este ejemplo usa `ConcurrentMapCacheManager` (`spring.cache.type: simple`) — esta fase es sobre Kafka, no sobre caché. El `CacheConfig` con Redis se conserva igual que en la Fase 4, pero nunca se activa aquí: `docker-compose.yml` no levanta ningún servicio de Redis.
 
 ## Endpoints
 
@@ -76,5 +76,3 @@ Usan H2 en memoria + `EmbeddedKafkaBroker` (un broker Kafka real embebido en el 
 ## Qué cubre el CI y qué no
 
 El CI ejecuta `./mvnw verify` con H2 y el broker embebido: no levanta el `docker-compose.yml`. Ese archivo sigue la configuración oficial de la imagen `apache/kafka` en modo KRaft (un solo nodo, sin ZooKeeper), pero la combinación completa Postgres + Kafka en Docker no tiene un test automático. Si al levantarla algo no funciona como describe este README, abre un issue.
-
-La validación de esquema sí está comprobada con las reglas de Postgres: la columna `created_at TIMESTAMP` de `notifications` (mapeada desde `Instant`) pasa `ddl-auto: validate` también con `PostgreSQLDialect`, no solo con el dialecto de H2.

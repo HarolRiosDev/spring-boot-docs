@@ -49,4 +49,4 @@ Por defecto, esa excepción produciría una respuesta 400 genérica y poco útil
 
 De modo que quien consuma la API sepa exactamente qué campo falló y por qué.
 
-El texto `"must not be blank"` es el mensaje por defecto de Bean Validation, y sale en el idioma del sistema donde corre la aplicación: en una máquina configurada en español verás `"no debe estar vacío"`. Si quieres un mensaje fijo, indícalo en la propia anotación: `@NotBlank(message = "El título es obligatorio")`.
+El texto `"must not be blank"` es el mensaje por defecto de Bean Validation, y su idioma lo decide la cabecera `Accept-Language` de cada petición: con `en` llega `"must not be blank"`, y con `es`, `"no debe estar vacío"`. Si la petición no la manda (`curl`, por ejemplo, no la manda), se usa el idioma del sistema donde corre la aplicación. Si quieres un mensaje fijo, indícalo en la propia anotación: `@NotBlank(message = "El título es obligatorio")`.

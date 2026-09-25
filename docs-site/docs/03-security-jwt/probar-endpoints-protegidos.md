@@ -33,6 +33,8 @@ TOKEN=$(curl -s -X POST http://localhost:8080/auth/login \
   -d '{"username": "ana", "password": "password123"}' | jq -r .token)
 ```
 
+`jq` extrae el campo `token` del JSON de la respuesta. Si no lo tienes instalado, copia el token a mano: `TOKEN=eyJhbGciOi...`.
+
 ## Usar el token
 
 ```bash

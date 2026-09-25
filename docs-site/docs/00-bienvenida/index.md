@@ -28,6 +28,6 @@ Está pensado para alguien que **ya sabe Java** (POO, colecciones, algo de lambd
 | 6 | Testing: JUnit, Mockito, Testcontainers | `06-testing` |
 | 7 | Producción: Actuator, métricas, logging, trazas, OpenAPI | `07-observabilidad` |
 
-Cada sección todavía en construcción lo indica claramente — el índice completo ya está aquí para que veas el mapa completo desde el día uno.
+Si nunca has arrancado una aplicación Spring Boot, empieza por `examples/00-hello-world`: la más pequeña posible, con un solo endpoint. La página [¿Qué es Spring Boot?](/docs/01-fundamentos/que-es-spring-boot) explica cómo arrancarla.
 
 Empieza por **Fundamentos** en el menú, o por el **Repaso de Java** si quieres afianzar la base primero.

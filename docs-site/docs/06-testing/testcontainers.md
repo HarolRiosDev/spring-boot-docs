@@ -5,7 +5,7 @@ sidebar_position: 3
 
 # Testcontainers
 
-Las Fases 2-4 solo pudieron probar contra H2 (en vez de Postgres) y `ConcurrentMapCacheManager` (en vez de Redis) — la única forma de tener una base de datos y una caché reales en un test automatizado, sin depender de que quien lo ejecute tenga Docker corriendo y configurado a mano. Testcontainers cierra esa brecha: levanta contenedores Docker reales, uno por dependencia, solo durante la ejecución de los tests, y los destruye al terminar.
+Las Fases 2-4 solo pudieron probar contra H2 (en vez de Postgres) y `ConcurrentMapCacheManager` (en vez de Redis) : era la forma de tener base de datos y caché en un test automatizado sin exigir que quien lo ejecute tenga Docker. Testcontainers cierra esa brecha: levanta contenedores Docker reales, uno por dependencia, solo durante la ejecución de los tests, y los destruye al terminar.
 
 ## `@Testcontainers` + `@Container` + `@ServiceConnection`
 
@@ -55,7 +55,7 @@ void fullFlow_registerLoginCreateAndReadTask_throughRealPostgresAndRedis() throw
 }
 ```
 
-La primera parte del test no es nueva — es el mismo patrón de MockMvc + JWT real usado desde la Fase 1. Lo nuevo son las líneas con `redis.execInContainer(...)`: ejecutan `redis-cli` **dentro** del propio contenedor de Redis, el mismo mecanismo que se usa para inspeccionar Redis a mano en Fase 4 (`docker compose exec redis redis-cli ...`), aquí automatizado como parte del test. La primera confirma, de forma empírica y no simulada, que la lectura de `GET /tasks/{id}` de verdad dejó una entrada en Redis — no solo que el endpoint respondió `200`. La segunda hace lo simétrico con la escritura: un `PUT /tasks/{id}` dispara `@CacheEvict(value = "tasks", key = "#id")` en `TaskServiceImpl.update`, y la aserción confirma que la clave realmente desapareció de Redis — si se quitara el `@CacheEvict`, la clave seguiría ahí y el test fallaría. Nótese también `.lines()` en vez de comparar el `String` crudo con `contains(...)`: como `redis-cli keys` puede devolver varias claves, comparar contra el texto completo haría que `"tasks::1"` diera un falso positivo si existiera `"tasks::10"`; comparando línea por línea se exige una coincidencia exacta.
+La primera parte del test no es nueva: es el mismo patrón de MockMvc (desde la Fase 1) con un JWT real (desde la Fase 3). Lo nuevo son las líneas con `redis.execInContainer(...)`: ejecutan `redis-cli` **dentro** del propio contenedor de Redis, el mismo mecanismo que se usa para inspeccionar Redis a mano en Fase 4 (`docker compose exec redis redis-cli ...`), aquí automatizado como parte del test. La primera confirma, de forma empírica y no simulada, que la lectura de `GET /tasks/{id}` de verdad dejó una entrada en Redis — no solo que el endpoint respondió `200`. La segunda hace lo simétrico con la escritura: un `PUT /tasks/{id}` dispara `@CacheEvict(value = "tasks", key = "#id")` en `TaskServiceImpl.update`, y la aserción confirma que la clave realmente desapareció de Redis — si se quitara el `@CacheEvict`, la clave seguiría ahí y el test fallaría. Nótese también `.lines()` en vez de comparar el `String` crudo con `contains(...)`: como `redis-cli keys` puede devolver varias claves, comparar contra el texto completo haría que `"tasks::1"` diera un falso positivo si existiera `"tasks::10"`; comparando línea por línea se exige una coincidencia exacta.
 
 ## `*IT.java` y `maven-failsafe-plugin`
 

@@ -35,6 +35,8 @@ public class SecurityConfig {
 - `authorizeHttpRequests` — `/auth/**` (registro y login) es público; todo lo demás requiere estar autenticado.
 - `@EnableMethodSecurity` — habilita `@PreAuthorize` sobre métodos de controller, usado más adelante en [Roles y autorización](./roles-y-autorizacion).
 
+La clase real de `examples/03-security-jwt` añade dos piezas más a esta cadena, que se explican en las páginas siguientes: el filtro que valida el JWT de cada petición ([Autenticación con JWT](./autenticacion-jwt)) y las respuestas 401/403 en JSON ([Roles y autorización](./roles-y-autorizacion#respuestas-de-error-consistentes)).
+
 ## `PasswordEncoder`
 
 Nunca se guarda una contraseña en texto plano. `BCryptPasswordEncoder` aplica un hash de un solo sentido (no se puede "deshacer") con una sal aleatoria incorporada, por lo que dos usuarios con la misma contraseña obtienen hashes distintos:

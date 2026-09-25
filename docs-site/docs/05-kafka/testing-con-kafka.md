@@ -67,4 +67,4 @@ long completedCount = notificationRepository.findByUser(user).stream()
 assertThat(completedCount).isZero();
 ```
 
-Es el mismo mecanismo que usa `TaskEventRulesTest` para confirmar, contra un broker Kafka real, que un rollback de transacción nunca llega a publicar nada: se fuerza el rollback, se dispara un evento barrera real de otro usuario, se espera esa notificación, y solo entonces se confirma que la lista de notificaciones del usuario original sigue vacía.
+El fragmento es de `TaskEventRulesTest`, que usa la misma técnica para otra ausencia: confirmar, contra un broker Kafka real, que un rollback de transacción nunca llega a publicar nada. Se fuerza el rollback, se dispara un evento barrera real de otro usuario, se espera esa notificación, y solo entonces se confirma que la lista de notificaciones del usuario original sigue vacía.

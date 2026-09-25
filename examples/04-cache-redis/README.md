@@ -1,6 +1,6 @@
 # 04-cache-redis
 
-API REST de gestión de tareas — ejemplo ejecutable de la Fase 4 (Caché/Redis) del sitio **Spring Boot desde cero**. Mismo dominio y mismo API que `03-security-jwt` (auth JWT, roles, ownership) — el endpoint público es idéntico, cachear no le añade ni le quita ninguna ruta. La diferencia vive por debajo: las lecturas por id pasan primero por una caché (Redis en producción, memoria en desarrollo/tests).
+API REST de gestión de tareas — ejemplo ejecutable de la Fase 4 (Caché/Redis) del sitio **Spring Boot desde cero**. Mismo dominio y mismo API que `03-security-jwt` (auth JWT, roles, ownership) — el API público es idéntico: cachear no le añade ni le quita ninguna ruta. La diferencia vive por debajo: las lecturas por id pasan primero por una caché (Redis en producción, memoria en desarrollo/tests).
 
 ## Requisitos
 
@@ -55,11 +55,11 @@ Las rutas protegidas requieren el header `Authorization: Bearer <token>` obtenid
 
 ## Verificar la caché manualmente (con Redis real)
 
-Con `docker compose up -d` corriendo:
+Con `docker compose up -d` corriendo (`redis-cli` se ejecuta dentro del contenedor, no hace falta instalarlo):
 
 ```bash
-redis-cli -n 0 keys "tasks::*"
-redis-cli -n 0 get "tasks::1"
+docker compose exec redis redis-cli keys "tasks::*"
+docker compose exec redis redis-cli get "tasks::1"
 ```
 
 Tras un `GET /tasks/1`, debería aparecer una clave `tasks::1` con el JSON de la tarea. Tras un `PUT`/`DELETE` sobre esa misma tarea, la clave desaparece.

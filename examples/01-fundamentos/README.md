@@ -12,6 +12,18 @@ API REST de gestión de tareas — ejemplo ejecutable de la Fase 1 (Fundamentos)
 ./mvnw spring-boot:run
 ```
 
+## Probar
+
+```bash
+curl -X POST http://localhost:8080/tasks \
+  -H "Content-Type: application/json" \
+  -d '{"titulo": "Comprar leche", "descripcion": "2 litros", "completada": false}'
+
+curl http://localhost:8080/tasks
+```
+
+Las tareas viven en memoria: se pierden al parar la aplicación.
+
 ## Endpoints
 
 | Método | Ruta | Descripción |

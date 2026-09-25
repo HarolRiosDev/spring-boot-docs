@@ -46,7 +46,7 @@ private Task getTaskForCurrentUser(Long id, User currentUser) {
 
 Un intento de `update`/`delete` que falla por falta de permiso nunca llega a invalidar la caché — y es el comportamiento correcto: no hubo ninguna escritura real que invalidar. No hace falta fijar `beforeInvocation` a mano; el valor por defecto de Spring ya es el que se necesita aquí, siempre que la comprobación de acceso ocurra antes de la escritura (no después).
 
-Un matiz honesto: `beforeInvocation=false` garantiza que la invalidación ocurre después de que el método termine bien, pero **no** garantiza que ocurra después del *commit* de la transacción. El interceptor de caché y el de transacciones tienen ambos precedencia `LOWEST_PRECEDENCE` por defecto, así que su orden relativo no es determinista salvo que se fije explícitamente con `@Order`. En un ejemplo de instancia única como este da igual; en un escenario con lectores concurrentes, una lectura que caiga en esa ventana podría volver a cachear el valor viejo.
+Un matiz honesto: `beforeInvocation=false` garantiza que la invalidación ocurre después de que el método termine bien, pero **no** garantiza que ocurra después del *commit* de la transacción. El interceptor de caché y el de transacciones tienen ambos precedencia `LOWEST_PRECEDENCE` por defecto, y con el mismo orden Spring no garantiza cuál de los dos se ejecuta primero, salvo que se fije a mano (con el atributo `order` de `@EnableCaching`, por ejemplo). En un ejemplo de instancia única como este da igual; en un escenario con lectores concurrentes, una lectura que caiga en esa ventana podría volver a cachear el valor viejo.
 
 ## La comprobación de ownership nunca se salta, ni en un acierto de caché
 

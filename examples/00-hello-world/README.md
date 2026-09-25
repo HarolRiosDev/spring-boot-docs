@@ -1,6 +1,6 @@
 # 00-hello-world
 
-Primer ejemplo ejecutable del sitio **Spring Boot desde cero** — valida el pipeline de principio a fin (no tiene infraestructura externa).
+La aplicación Spring Boot más pequeña posible, del sitio **Spring Boot desde cero**: una clase de arranque y un controlador con un solo endpoint, sin base de datos ni ninguna otra infraestructura. Se explica en [¿Qué es Spring Boot?](../../docs-site/docs/01-fundamentos/que-es-spring-boot.md).
 
 ## Requisitos
 

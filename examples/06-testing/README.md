@@ -1,6 +1,6 @@
 # 06-testing
 
-API REST de gestión de tareas — ejemplo ejecutable de la Fase 6 (Testing) del sitio **Spring Boot desde cero**. Mismo dominio y mismo API que `04-cache-redis` (auth JWT, roles, ownership, caché) — el endpoint público es idéntico. El foco de esta fase no es el API sino cómo se prueba: tests parametrizados (JUnit), tests unitarios puros (Mockito) y tests de integración contra infraestructura real (Testcontainers).
+API REST de gestión de tareas — ejemplo ejecutable de la Fase 6 (Testing) del sitio **Spring Boot desde cero**. Mismo dominio y mismo API que `04-cache-redis` (auth JWT, roles, ownership, caché) — el API público es idéntico. El foco de esta fase no es el API sino cómo se prueba: tests parametrizados (JUnit), tests unitarios puros (Mockito) y tests de integración contra infraestructura real (Testcontainers).
 
 ## Requisitos
 

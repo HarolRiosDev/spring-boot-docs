@@ -5,7 +5,7 @@ sidebar_position: 3
 
 # Lambdas y streams
 
-Esto es lo que más vas a reconocer en el código real de este sitio — casi todos los ejemplos ejecutables tienen al menos una línea con `.stream()`.
+Esto es lo que más vas a reconocer en el código real de este sitio — a partir de la Fase 3, todos los ejemplos ejecutables tienen al menos una línea con `.stream()`.
 
 ## Interfaces funcionales
 
@@ -50,7 +50,7 @@ List<TaskResponse> completadas = tasks.stream()
 - `.map(...)` — transforma cada elemento en otra cosa (aquí, de `Task` a `TaskResponse`).
 - `.toList()` — vuelca el resultado a una `List` normal.
 
-Esta línea exacta —`tasks.stream().map(TaskResponse::from).toList()`— aparece, sin cambios, en `TaskServiceImpl.findAll()` de las Fases 3 a 6 (desde la Fase 3 las tareas tienen un dueño, y `TaskResponse` existe precisamente para no exponer la entidad `User` completa): es como se convierte una lista de entidades (`Task`) en una lista de DTOs de salida (`TaskResponse`), sin escribir un `for` que las recorra a mano.
+Esta línea exacta —`tasks.stream().map(TaskResponse::from).toList()`— aparece, sin cambios, en `TaskServiceImpl.findAll()` de las Fases 3 a 7 (desde la Fase 3 las tareas tienen un dueño, y `TaskResponse` existe precisamente para no exponer la entidad `User` completa): es como se convierte una lista de entidades (`Task`) en una lista de DTOs de salida (`TaskResponse`), sin escribir un `for` que las recorra a mano.
 
 ## Method references (`::`)
 

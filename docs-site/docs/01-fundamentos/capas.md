@@ -76,7 +76,7 @@ dev.springbootdocs.examples.tasks
 
 - `model/` guarda los objetos del dominio (más adelante, las entidades JPA). `dto/` guarda los objetos que entran y salen por HTTP, que no siempre coinciden con el modelo.
 - `exception/` junta las excepciones propias y el manejador global que las traduce a respuestas HTTP (ver [Manejo de errores](./manejo-errores)).
-- Las fases siguientes añaden paquetes con el mismo criterio: `security/` en la Fase 3, `config/` en la Fase 4, `messaging/` en la Fase 5.
+- Las fases siguientes añaden paquetes con el mismo criterio: `security/` en la Fase 3, `config/` en la Fase 4, `messaging/` en la Fase 5 y `observability/` en la Fase 7.
 
 La clase `@SpringBootApplication` se queda en el paquete raíz a propósito: Spring busca componentes (`@Service`, `@RestController`, entidades, repositorios...) en el paquete de esa clase **y en todos sus subpaquetes**. Si la movieras dentro de `controller/`, Spring dejaría de encontrar todo lo que está en `service/`, `repository/`, etc.
 

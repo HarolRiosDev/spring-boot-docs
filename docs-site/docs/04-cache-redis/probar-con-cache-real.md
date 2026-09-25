@@ -73,11 +73,11 @@ void cacheHit_stillEnforcesOwnership_forDifferentUser() throws Exception {
 
 ## Verificación manual contra Redis real
 
-Con Docker disponible y `docker compose up -d` corriendo:
+Con Docker disponible y `docker compose up -d` corriendo, desde la carpeta del ejemplo (`redis-cli` se ejecuta dentro del contenedor, no hace falta instalarlo):
 
 ```bash
-redis-cli -n 0 keys "tasks::*"
-redis-cli -n 0 get "tasks::1"
+docker compose exec redis redis-cli keys "tasks::*"
+docker compose exec redis redis-cli get "tasks::1"
 ```
 
 Tras un `GET /tasks/1`, debería aparecer una clave `tasks::1` con el JSON de la tarea (gracias a `GenericJacksonJsonRedisSerializer`, ver [Redis como backend](./redis-como-backend)); tras un `PUT`/`DELETE` sobre esa misma tarea, la clave desaparece. El JSON que aparece ahí incluye el `user` de la tarea, pero **no** su contraseña: el getter lleva `@JsonIgnore` precisamente porque este Redis de ejemplo corre sin autenticación y nada aguas abajo necesita el hash. Que ese `user` sea un `User` real y no un proxy perezoso es lo que garantiza el `join fetch` de `findByIdWithUser` (ver [Spring Cache básico](./spring-cache-basico)); ambas cosas están cubiertas por un test unitario de serialización (`CacheValueSerializationTest`) que ejercita el mismo serializador sin necesitar Redis.
