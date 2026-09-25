@@ -10,12 +10,16 @@ import dev.springbootdocs.examples.tasks.repository.TaskRepository;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TaskServiceImpl implements TaskService {
+
+    private static final Logger log = LoggerFactory.getLogger(TaskServiceImpl.class);
 
     private final TaskRepository taskRepository;
     private final CachedTaskLookup cachedTaskLookup;
@@ -39,6 +43,7 @@ public class TaskServiceImpl implements TaskService {
         // dentro de la transacción: si el commit fallara después, contaría una tarea que no
         // llegó a existir. Para una métrica es aceptable.
         taskCreations.increment();
+        log.info("Tarea {} creada por {}", saved.getId(), currentUser.getUsername());
         return TaskResponse.from(saved);
     }
 
@@ -74,6 +79,7 @@ public class TaskServiceImpl implements TaskService {
     public void delete(Long id, User currentUser) {
         Task task = getTaskForCurrentUser(id, currentUser);
         taskRepository.delete(task);
+        log.info("Tarea {} borrada por {}", id, currentUser.getUsername());
     }
 
     /**
@@ -94,6 +100,7 @@ public class TaskServiceImpl implements TaskService {
         boolean isOwner = task.getUser().getId().equals(currentUser.getId());
         boolean isAdmin = currentUser.getRole() == Role.ADMIN;
         if (!isOwner && !isAdmin) {
+            log.warn("Acceso denegado: {} intentó acceder a la tarea {}", currentUser.getUsername(), task.getId());
             throw new TaskAccessDeniedException(task.getId());
         }
     }

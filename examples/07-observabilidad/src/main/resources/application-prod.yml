@@ -1,0 +1,11 @@
+# La misma aplicación con la configuración de producción: SPRING_PROFILES_ACTIVE=prod
+logging:
+  structured:
+    format:
+      # una línea JSON por evento (Elastic Common Schema), con traceId y spanId como campos
+      console: ecs
+
+management:
+  endpoint:
+    health:
+      show-details: never
