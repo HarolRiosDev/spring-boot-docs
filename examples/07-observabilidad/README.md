@@ -79,7 +79,7 @@ Usa H2 en archivo (`data/tasks_observability.mv.db`, en `.gitignore`) y la cach�
 ./mvnw test
 ```
 
-Sin Docker: H2 y caché en memoria. Incluyen Actuator en su propio puerto, las métricas, la cabecera `X-Trace-Id`, los logs en JSON del perfil `prod`, el spec de OpenAPI y que cada métrica del dashboard de Grafana existe en la app.
+Sin Docker: H2 y caché en memoria. Incluyen Actuator en su propio puerto, las métricas, la cabecera `X-Trace-Id`, los logs en JSON del perfil `prod`, la especificación OpenAPI y que cada métrica del dashboard de Grafana existe en la app.
 
 ```bash
 ./mvnw verify
