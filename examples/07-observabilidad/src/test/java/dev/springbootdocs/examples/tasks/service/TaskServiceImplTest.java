@@ -11,6 +11,7 @@ import dev.springbootdocs.examples.tasks.model.Role;
 import dev.springbootdocs.examples.tasks.model.Task;
 import dev.springbootdocs.examples.tasks.model.User;
 import dev.springbootdocs.examples.tasks.repository.TaskRepository;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +36,8 @@ class TaskServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        taskService = new TaskServiceImpl(taskRepository, cachedTaskLookup);
+        // un registro de métricas real en memoria: no hace falta mockear Micrometer
+        taskService = new TaskServiceImpl(taskRepository, cachedTaskLookup, new SimpleMeterRegistry());
 
         owner = new User("owner", "hash", Role.USER);
         ReflectionTestUtils.setField(owner, "id", 1L);

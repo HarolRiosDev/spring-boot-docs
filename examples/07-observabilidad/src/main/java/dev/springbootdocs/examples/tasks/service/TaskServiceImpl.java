@@ -7,6 +7,8 @@ import dev.springbootdocs.examples.tasks.model.Role;
 import dev.springbootdocs.examples.tasks.model.Task;
 import dev.springbootdocs.examples.tasks.model.User;
 import dev.springbootdocs.examples.tasks.repository.TaskRepository;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.util.List;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -17,17 +19,27 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final CachedTaskLookup cachedTaskLookup;
+    private final Counter taskCreations;
 
-    public TaskServiceImpl(TaskRepository taskRepository, CachedTaskLookup cachedTaskLookup) {
+    public TaskServiceImpl(
+            TaskRepository taskRepository, CachedTaskLookup cachedTaskLookup, MeterRegistry meterRegistry) {
         this.taskRepository = taskRepository;
         this.cachedTaskLookup = cachedTaskLookup;
+        // se registra al arrancar: la serie existe (a 0) antes de la primera tarea
+        this.taskCreations = Counter.builder("tasks.creations")
+                .description("Tareas creadas desde que arrancó la aplicación")
+                .register(meterRegistry);
     }
 
     @Override
     @Transactional
     public TaskResponse create(TaskRequest request, User currentUser) {
         Task task = new Task(request.titulo(), request.descripcion(), request.completada(), currentUser);
-        return TaskResponse.from(taskRepository.save(task));
+        Task saved = taskRepository.save(task);
+        // dentro de la transacción: si el commit fallara después, contaría una tarea que no
+        // llegó a existir. Para una métrica es aceptable.
+        taskCreations.increment();
+        return TaskResponse.from(saved);
     }
 
     @Override
