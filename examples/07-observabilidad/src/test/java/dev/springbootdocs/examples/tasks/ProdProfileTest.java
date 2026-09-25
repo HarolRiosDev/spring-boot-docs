@@ -75,6 +75,12 @@ class ProdProfileTest {
     }
 
     @Test
+    void swaggerUi_isDisabled_butApiDocsStillServed() throws Exception {
+        mockMvc.perform(get("/swagger-ui.html")).andExpect(status().isNotFound());
+        mockMvc.perform(get("/v3/api-docs")).andExpect(status().isOk());
+    }
+
+    @Test
     void health_neverShowsDetails_evenForAdmin() throws Exception {
         String adminToken = login("admin", "admin12345");
 

@@ -5,6 +5,11 @@ logging:
       # una línea JSON por evento (Elastic Common Schema), con traceId y spanId como campos
       console: ecs
 
+springdoc:
+  swagger-ui:
+    # la UI interactiva no se sirve en producción; el JSON de /v3/api-docs sí
+    enabled: false
+
 management:
   endpoint:
     health:
