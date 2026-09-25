@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### H2 en archivo (perfil h2) ###
+data/
