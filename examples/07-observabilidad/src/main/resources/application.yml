@@ -12,6 +12,26 @@ spring:
     hibernate:
       ddl-auto: validate
 
+management:
+  server:
+    # puerto de gestión: lo usan Prometheus y los chequeos internos, no se publica hacia fuera
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+      roles: ADMIN
+      probes:
+        enabled: true
+      group:
+        readiness:
+          # sin base de datos la app no puede atender peticiones: deja de recibir tráfico,
+          # pero no se reinicia (liveness no la incluye)
+          include: readinessState, db
+
 app:
   jwt:
     secret: "${JWT_SECRET:local-dev-secret-please-change-in-production-0123456789abcdef}"

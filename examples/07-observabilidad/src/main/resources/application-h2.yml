@@ -5,3 +5,9 @@ spring:
     password:
   cache:
     type: simple
+
+management:
+  health:
+    redis:
+      # sin Redis corriendo, su health check daría DOWN y arrastraría el estado global
+      enabled: false
