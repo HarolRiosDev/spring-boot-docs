@@ -66,7 +66,7 @@ Como ese id lo puede fijar quien hace la petición, sirve para correlacionar log
 
 ## `X-Trace-Id`: el id en la respuesta
 
-El `traceId` está en los logs, pero el cliente no lo ve. El ejemplo lo devuelve en una cabecera de cada respuesta:
+El `traceId` está en los logs, pero el cliente no lo ve. El ejemplo lo devuelve en una cabecera de cada respuesta del API (el puerto de gestión, 8081, no la lleva):
 
 ```java
 public class TraceIdFilter extends OncePerRequestFilter {

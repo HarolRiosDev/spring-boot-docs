@@ -107,6 +107,22 @@ spring:
 - Sin `cache-names`, la caché `tasks` se crea la primera vez que se usa, y Spring Boot solo registra las métricas de las cachés que existen al arrancar: las series no aparecen nunca.
 - Sin `enable-statistics`, las series existen pero siempre valen 0. El panel de Grafana se queda plano, y parece que la caché no se usa.
 
+:::caution[`cache-names` y la configuración de la caché]
+Con `cache-names`, Spring Boot crea la caché `tasks` al arrancar, con la configuración por defecto que haya en ese momento. En la Fase 4, el TTL de 10 minutos y el serializador JSON se aplicaban con un `RedisCacheManagerBuilderCustomizer` que llamaba a `cacheDefaults(...)`; ese customizer se ejecuta **después** de crear las cachés de `cache-names`, así que ya no llega a `tasks`. La caché se quedaría sin TTL y con el serializador de Java, que no sabe guardar un `Task`: cada `GET /tasks/{id}` contra Redis daría 500. Por eso este ejemplo declara la configuración como un bean `RedisCacheConfiguration`, que Spring Boot usa como valor por defecto antes de crear ninguna caché:
+
+```java
+@Bean
+public RedisCacheConfiguration redisCacheConfiguration() {
+    // typeValidator y valueSerializer, igual que en la Fase 4
+    return RedisCacheConfiguration.defaultCacheConfig()
+            .entryTtl(Duration.ofMinutes(10))
+            .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(valueSerializer));
+}
+```
+
+`RedisCacheConfigurationTest` lo comprueba sin Redis: pide la caché `tasks` al `CacheManager` y verifica su TTL y que sabe serializar un `Task`.
+:::
+
 La caché en memoria que usan el perfil `h2` y los tests (`ConcurrentMapCacheManager`) no publica métricas: sin Redis, ese panel del dashboard se queda vacío.
 
 ## Prometheus y Grafana
@@ -136,13 +152,13 @@ Es Prometheus quien va a buscar las métricas (modelo *pull*), así que le basta
 | Latencia p95 (por endpoint) | `histogram_quantile(0.95, sum by (le, uri) (rate(http_server_requests_seconds_bucket{uri!~"/actuator.*"}[5m])))` |
 | Respuestas de error (4xx y 5xx) | `sum by (status) (rate(http_server_requests_seconds_count{status=~"4..\|5.."}[1m]))` |
 | Tareas creadas desde el arranque | `sum(tasks_creations_total)` |
-| Caché: aciertos y fallos por segundo | `sum by (result) (rate(cache_gets_total{cache="tasks"}[1m]))` |
+| Caché de tareas: aciertos y fallos por segundo | `sum by (result) (rate(cache_gets_total{cache="tasks"}[1m]))` |
 | Memoria heap de la JVM | `sum(jvm_memory_used_bytes{area="heap"})` |
-| Conexiones activas a la base de datos | `sum(hikaricp_connections_active)` |
+| Conexiones activas a la base de datos (Hikari) | `sum(hikaricp_connections_active)` |
 
 Las dos primeras, leídas de dentro afuera:
 
-- `rate(http_server_requests_seconds_count[1m])`: el contador de peticiones solo crece; `rate` lo convierte en "peticiones por segundo" durante el último minuto. `sum by (uri)` junta las series de cada endpoint (todos los métodos, todos los códigos de estado) y deja una línea por `uri`. El filtro `uri!~"/actuator.*"` quita los propios scrapes de Prometheus.
+- `rate(http_server_requests_seconds_count[1m])`: el contador de peticiones solo crece; `rate` lo convierte en "peticiones por segundo" durante el último minuto. `sum by (uri)` junta las series de cada endpoint (todos los métodos, todos los códigos de estado) y deja una línea por `uri`. El filtro `uri!~"/actuator.*"` deja fuera las peticiones a Actuator cuando comparte puerto con el API, como en los tests. Con el puerto de gestión separado del ejemplo, las peticiones al 8081 (incluidos los scrapes de Prometheus) ni siquiera se miden: el filtro no cambia nada, pero el panel sigue siendo correcto si algún día Actuator vuelve al puerto del API.
 - `histogram_quantile(0.95, ...)`: toma a qué velocidad se llena cada bucket del histograma en los últimos 5 minutos, suma los de todas las instancias (`sum by (le, uri)`) y calcula el tiempo por debajo del cual queda el 95 % de las peticiones.
 
 ## Cómo se prueba sin levantar Grafana

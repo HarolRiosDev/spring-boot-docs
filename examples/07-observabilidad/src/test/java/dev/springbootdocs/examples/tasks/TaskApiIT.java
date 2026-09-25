@@ -121,18 +121,22 @@ class TaskApiIT {
         MvcResult loginResult = mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new LoginRequest(username, password))))
+                .andExpect(status().isOk())
                 .andReturn();
         String token = objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
         MvcResult createResult = mockMvc.perform(post("/tasks")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new TaskRequest("Contar aciertos", "desc", false))))
+                .andExpect(status().isCreated())
                 .andReturn();
         long taskId = objectMapper.readTree(createResult.getResponse().getContentAsString()).get("id").asLong();
 
         // primera lectura: fallo de caché (va a Postgres y guarda en Redis); segunda: acierto
-        mockMvc.perform(get("/tasks/{id}", taskId).header("Authorization", "Bearer " + token));
-        mockMvc.perform(get("/tasks/{id}", taskId).header("Authorization", "Bearer " + token));
+        mockMvc.perform(get("/tasks/{id}", taskId).header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+        mockMvc.perform(get("/tasks/{id}", taskId).header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
 
         // RedisCacheManager solo cuenta aciertos con spring.cache.redis.enable-statistics=true;
         // sin esa propiedad la métrica existiría, pero siempre a 0, y el panel de Grafana

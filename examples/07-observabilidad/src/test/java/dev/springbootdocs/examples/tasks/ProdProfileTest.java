@@ -26,6 +26,9 @@ import tools.jackson.databind.ObjectMapper;
 /**
  * La misma aplicación con el perfil "prod" (src/main/resources/application-prod.yml):
  * logs en JSON, Swagger UI apagado y health sin detalles.
+ *
+ * <p>La configuración de logging es global a la JVM: después de esta clase, la salida por consola
+ * de otras clases de test puede salir también en JSON. Ningún test depende de ese formato.
  */
 @SpringBootTest
 @AutoConfigureMockMvc

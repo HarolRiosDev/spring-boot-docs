@@ -50,7 +50,7 @@ SPRING_PROFILES_ACTIVE=prod ./mvnw spring-boot:run
 
 Cada línea de log es un objeto JSON (formato ECS) con `traceId` y `spanId`. El perfil `prod` también apaga Swagger UI (el JSON de `/v3/api-docs` sigue disponible) y oculta el detalle de `health`.
 
-Cada respuesta lleva la cabecera `X-Trace-Id`. Con ese valor se encuentran en los logs todas las líneas de esa petición.
+Cada respuesta del API (puerto 8080) lleva la cabecera `X-Trace-Id`. Con ese valor se encuentran en los logs todas las líneas de esa petición.
 
 ## Sin Docker (perfil `h2`)
 

@@ -35,7 +35,7 @@ Una lista para repasar antes de desplegar una API Spring Boot. Cada bloque enlaz
 - [ ] Logs con SLF4J y parámetros (`{}`), cada uno en el nivel que le corresponde.
 - [ ] Ni contraseñas, ni tokens, ni hashes, ni datos personales que no deban estar.
 - [ ] En producción, logs en JSON.
-- [ ] Cada línea lleva el `traceId` de su petición, y cada respuesta lo devuelve en `X-Trace-Id`, también las de error.
+- [ ] Cada línea lleva el `traceId` de su petición, y cada respuesta del API lo devuelve en `X-Trace-Id`, también las de error.
 
 ## Superficie expuesta
 
