@@ -15,5 +15,32 @@ services:
     ports:
       - "6379:6379"
 
+  prometheus:
+    image: prom/prometheus:v3.15.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    # la app corre fuera de Docker (./mvnw spring-boot:run): Prometheus la alcanza a través
+    # del host. En Docker Desktop host.docker.internal ya existe; en Linux lo crea esta línea
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  grafana:
+    image: grafana/grafana:12.4.11
+    ports:
+      # 3001 y no 3000: el 3000 lo usa el servidor de desarrollo de Docusaurus
+      - "3001:3000"
+    environment:
+      # entrar sin login, en solo lectura (solo para local)
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/tasks-api.json
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+
 volumes:
   postgres-data:
