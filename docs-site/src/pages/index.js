@@ -51,7 +51,7 @@ const PHASES = [
   {
     icon: '📊',
     title: '7. Producción',
-    description: 'Actuator, métricas, logging, Docker.',
+    description: 'Actuator, métricas, logging, OpenAPI.',
     to: '/docs/07-observabilidad/',
   },
 ];

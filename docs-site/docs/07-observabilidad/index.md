@@ -15,9 +15,9 @@ Hasta ahora sabíamos que la API funcionaba porque los tests pasaban. En producc
 
 1. [Actuator](./actuator)
 2. [Métricas con Micrometer y Prometheus](./metricas)
-3. Logs y trazas
-4. OpenAPI con springdoc
-5. ¿Está lista para producción?
+3. [Logs y trazas](./logging-y-trazas)
+4. [OpenAPI con springdoc](./openapi)
+5. [¿Está lista para producción?](./lista-para-produccion)
 
 ## Cómo encaja todo
 
