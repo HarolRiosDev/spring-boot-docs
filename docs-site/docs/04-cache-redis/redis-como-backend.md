@@ -60,36 +60,40 @@ La alternativa más corta, `enableUnsafeDefaultTyping()` (sin validador), acepta
 
 ## Todo junto: el `@Bean` en `CacheConfig`
 
-Los tres fragmentos anteriores (`typeValidator`, `valueSerializer`, `cacheConfiguration`) no son código suelto — son variables locales de un mismo método, dentro de la misma clase `CacheConfig` que ya vimos en [Spring Cache básico](./spring-cache-basico) con `@EnableCaching`. Esta es la clase completa, con el `@Bean` que faltaba en esa página:
+Los fragmentos anteriores (`typeValidator`, `valueSerializer` y la `RedisCacheConfiguration`) no son código suelto: son las piezas de un mismo método, dentro de la clase `CacheConfig` que ya vimos en [Spring Cache básico](./spring-cache-basico) con `@EnableCaching`. Esta es la clase completa, con el `@Bean` que faltaba en esa página:
 
 ```java
 @Configuration
 @EnableCaching
 public class CacheConfig {
 
+    private static final String ENTITY_BASE_PACKAGE = "dev.springbootdocs.examples.tasks.";
+
     @Bean
-    public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
+    public RedisCacheConfiguration redisCacheConfiguration() {
         PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()
-                .allowIfSubType("dev.springbootdocs.examples.tasks.")
+                .allowIfSubType(ENTITY_BASE_PACKAGE)
                 .build();
         GenericJacksonJsonRedisSerializer valueSerializer = GenericJacksonJsonRedisSerializer.builder()
                 .enableDefaultTyping(typeValidator)
                 .build();
-        RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+        return RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(10))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(valueSerializer));
-        return builder -> builder.cacheDefaults(cacheConfiguration);
     }
 }
 ```
 
-La línea que de verdad conecta todo es la última: `return builder -> builder.cacheDefaults(cacheConfiguration);`. `RedisCacheManagerBuilderCustomizer` es una interfaz funcional que Spring Boot invoca durante el arranque, pasándole el `RedisCacheManager.RedisCacheManagerBuilder` que está a punto de construir el `CacheManager` autoconfigurado; `cacheDefaults(cacheConfiguration)` le dice a ese builder "usa esta configuración —con su TTL y su serializador JSON— como valor por defecto para cualquier caché declarada con `@Cacheable`". Sin devolver ese lambda, las tres variables locales quedarían construidas pero nunca aplicadas: `RedisCacheManager` seguiría usando sus valores por defecto (sin TTL, con `JdkSerializationRedisSerializer`).
+Al arrancar, Spring Boot busca un bean de tipo `RedisCacheConfiguration` y, si lo encuentra, lo usa como configuración por defecto de cada caché de Redis que crea, incluida la de `@Cacheable(value = "tasks")`. Sin ese bean, `RedisCacheManager` usaría la suya: sin TTL y con `JdkSerializationRedisSerializer`.
+
+`RedisCacheConfiguration` es inmutable: `entryTtl(...)` y `serializeValuesWith(...)` no modifican el objeto, devuelven una copia nueva con ese cambio. Por eso las llamadas van encadenadas y el método devuelve el resultado final.
+
+`RedisCacheConfigurationTest` lo comprueba sin necesitar Redis: pide la caché `tasks` al `CacheManager` y verifica que caduca a los 10 minutos y que sabe serializar un `Task`.
+
+:::note[La otra forma que verás en tutoriales]
+Muchos tutoriales consiguen lo mismo con un `RedisCacheManagerBuilderCustomizer`, que recibe el constructor del `CacheManager` y llama a `builder.cacheDefaults(...)`. Funciona, pero su sitio es otro: configurar cachés concretas una a una (un TTL distinto para cada una, por ejemplo). Y tiene una trampa: las cachés que declares en `spring.cache.cache-names` se crean antes de que se ejecute el customizer, así que se quedan sin esa configuración. En la página de [métricas de la Fase 7](/docs/07-observabilidad/metricas) se ve un caso real. Para cambiar la configuración por defecto, el bean `RedisCacheConfiguration` es la forma directa.
+:::
 
 ## Un gotcha de nombres, no de diseño
 
-Dos imports de esta clase son fáciles de equivocar:
-
-- `RedisCacheConfiguration` existe dos veces en el classpath, con el mismo nombre simple: en `org.springframework.boot.cache.autoconfigure` (interna de Spring Boot, no se usa aquí) y en `org.springframework.data.redis.cache` (de Spring Data Redis, la correcta para `entryTtl`/`serializeValuesWith`).
-- `RedisCacheManagerBuilderCustomizer` vive en `org.springframework.boot.cache.autoconfigure` en Spring Boot 4.x. En Spring Boot 3.x estaba en `org.springframework.boot.autoconfigure.cache`, así que un tutorial anterior te dará un import que ya no compila.
-
-Ninguno de los dos es un problema de diseño: es puramente que el IDE puede autocompletar el import equivocado si no se presta atención.
+`RedisCacheConfiguration` existe dos veces con el mismo nombre simple. La que se usa aquí es la de Spring Data Redis, `org.springframework.data.redis.cache.RedisCacheConfiguration`, la que tiene `entryTtl` y `serializeValuesWith`. Spring Boot tiene otra en `org.springframework.boot.cache.autoconfigure`: es una clase interna de su autoconfiguración y no es pública, así que un import que apunte ahí no compila.

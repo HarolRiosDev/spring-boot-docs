@@ -108,17 +108,7 @@ spring:
 - Sin `enable-statistics`, las series existen pero siempre valen 0. El panel de Grafana se queda plano, y parece que la caché no se usa.
 
 :::caution[`cache-names` y la configuración de la caché]
-Con `cache-names`, Spring Boot crea la caché `tasks` al arrancar, con la configuración por defecto que haya en ese momento. En la Fase 4, el TTL de 10 minutos y el serializador JSON se aplicaban con un `RedisCacheManagerBuilderCustomizer` que llamaba a `cacheDefaults(...)`; ese customizer se ejecuta **después** de crear las cachés de `cache-names`, así que ya no llega a `tasks`. La caché se quedaría sin TTL y con el serializador de Java, que no sabe guardar un `Task`: cada `GET /tasks/{id}` contra Redis daría 500. Por eso este ejemplo declara la configuración como un bean `RedisCacheConfiguration`, que Spring Boot usa como valor por defecto antes de crear ninguna caché:
-
-```java
-@Bean
-public RedisCacheConfiguration redisCacheConfiguration() {
-    // typeValidator y valueSerializer, igual que en la Fase 4
-    return RedisCacheConfiguration.defaultCacheConfig()
-            .entryTtl(Duration.ofMinutes(10))
-            .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(valueSerializer));
-}
-```
+Con `cache-names`, Spring Boot crea la caché `tasks` al arrancar, con la configuración por defecto que haya en ese momento. Con el bean `RedisCacheConfiguration` de la [Fase 4](/docs/04-cache-redis/redis-como-backend) no hay problema: Spring Boot lo tiene en cuenta antes de crear ninguna caché. Pero si la configuración llega con un `RedisCacheManagerBuilderCustomizer`, la alternativa que aparece en muchos tutoriales, su `cacheDefaults(...)` se ejecuta **después** de crear las cachés de `cache-names` y ya no alcanza a `tasks`. La caché se quedaría sin TTL y con el serializador de Java, que no sabe guardar un `Task`: cada `GET /tasks/{id}` contra Redis daría 500, y ningún test con la caché en memoria lo notaría.
 
 `RedisCacheConfigurationTest` lo comprueba sin Redis: pide la caché `tasks` al `CacheManager` y verifica su TTL y que sabe serializar un `Task`.
 :::
