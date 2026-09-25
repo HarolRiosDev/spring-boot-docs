@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: 07-observabilidad
+  datasource:
+    url: jdbc:h2:mem:tasks_observability;MODE=PostgreSQL
+    username: sa
+    password:
+  flyway:
+    enabled: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  cache:
+    type: simple
+
+app:
+  jwt:
+    secret: "test-secret-key-for-integration-tests-only-0123456789abcdef"
+    expiration-millis: 3600000

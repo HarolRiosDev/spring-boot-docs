@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: 07-observabilidad
+  datasource:
+    url: jdbc:postgresql://localhost:5438/tasks_observability
+    username: tasks_observability
+    password: tasks_observability
+  flyway:
+    enabled: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+app:
+  jwt:
+    secret: "${JWT_SECRET:local-dev-secret-please-change-in-production-0123456789abcdef}"
+    expiration-millis: 3600000
