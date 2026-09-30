@@ -25,6 +25,12 @@ const PHASES = [
     to: '/docs/02-persistencia/',
   },
   {
+    icon: '🏛️',
+    title: '2b. Base de datos existente',
+    description: 'Esquemas heredados: mapeo, Flyway con baseline, vistas y SQL.',
+    to: '/docs/02b-bd-existente/',
+  },
+  {
     icon: '🔐',
     title: '3. Seguridad y Auth',
     description: 'Spring Security, JWT, roles.',

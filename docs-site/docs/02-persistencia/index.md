@@ -22,3 +22,7 @@ cd examples/02-persistencia
 docker compose up -d
 ./mvnw spring-boot:run
 ```
+
+## ¿Y si la base de datos ya existe?
+
+Esta fase parte de una base de datos vacía que la aplicación crea y controla. Si te toca trabajar con una que ya existe, con nombres, triggers y funciones que no puedes cambiar, sigue con la sección [2b. Base de datos existente](/docs/02b-bd-existente/).

@@ -14,13 +14,14 @@ Sitio de documentación para aprender Spring Boot desde cero, en español, con u
 | [`00-hello-world`](examples/00-hello-world/) | La aplicación Spring Boot más pequeña posible | JDK 21 |
 | [`01-fundamentos`](examples/01-fundamentos/) | API REST de tareas: capas, validación, errores | JDK 21 |
 | [`02-persistencia`](examples/02-persistencia/) | Spring Data JPA, PostgreSQL, Flyway | JDK 21 (Docker opcional) |
+| [`02b-bd-existente`](examples/02b-bd-existente/) | Base de datos heredada: mapeo, Flyway con baseline, vistas, SQL con `JdbcClient` | JDK 21 y Docker |
 | [`03-security-jwt`](examples/03-security-jwt/) | Spring Security, JWT, roles | JDK 21 (Docker opcional) |
 | [`04-cache-redis`](examples/04-cache-redis/) | Spring Cache con Redis | JDK 21 (Docker opcional) |
 | [`05-kafka`](examples/05-kafka/) | Productores y consumidores con Kafka | JDK 21 (Docker opcional) |
 | [`06-testing`](examples/06-testing/) | JUnit, Mockito, Testcontainers | JDK 21 (Docker para `./mvnw verify`) |
 | [`07-observabilidad`](examples/07-observabilidad/) | Actuator, métricas, logs, OpenAPI | JDK 21 (Docker opcional) |
 
-Sin Docker, los ejemplos con base de datos arrancan con el perfil `h2` (`SPRING_PROFILES_ACTIVE=h2 ./mvnw spring-boot:run`); el README de cada uno lo explica.
+Sin Docker, los ejemplos con base de datos arrancan con el perfil `h2` (`SPRING_PROFILES_ACTIVE=h2 ./mvnw spring-boot:run`); el README de cada uno lo explica. La excepción es `02b-bd-existente`: trabaja sobre un esquema heredado de PostgreSQL, así que necesita Docker.
 
 ## Ejecutar un ejemplo
 

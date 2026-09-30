@@ -7,6 +7,8 @@ sidebar_position: 3
 
 Las Fases 2-4 solo pudieron probar contra H2 (en vez de Postgres) y `ConcurrentMapCacheManager` (en vez de Redis) : era la forma de tener base de datos y caché en un test automatizado sin exigir que quien lo ejecute tenga Docker. Testcontainers cierra esa brecha: levanta contenedores Docker reales, uno por dependencia, solo durante la ejecución de los tests, y los destruye al terminar.
 
+Si hiciste la sección [2b. Base de datos existente](/docs/02b-bd-existente/), ya lo usaste de pasada: allí H2 no servía porque el esquema heredado depende de PL/pgSQL. Esta página lo cuenta a fondo.
+
 ## `@Testcontainers` + `@Container` + `@ServiceConnection`
 
 ```java
