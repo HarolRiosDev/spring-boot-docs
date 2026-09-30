@@ -53,7 +53,7 @@ class TaskConcurrencyIT {
 }
 ```
 
-Como todas las clases de test usan la misma configuración, Spring reutiliza un único contexto entre ellas y el contenedor arranca una sola vez. Si una clase añadiera `properties` o un `@MockitoBean` propios, tendría un contexto distinto y, con él, otro contenedor.
+Como todas las clases de test usan exactamente la misma configuración, Spring reutiliza un único contexto entre ellas y el contenedor arranca una sola vez. Cualquier diferencia rompe ese reparto: unas `properties` o un `@MockitoBean` propios, pero también una anotación de test distinta. Por eso `TasksLegacyApplicationIT` lleva `@AutoConfigureMockMvc` aunque no use MockMvc: sin ella tendría su propio contexto y, con él, un segundo contenedor.
 
 ## `*Test` sin Docker, `*IT` con Docker
 
