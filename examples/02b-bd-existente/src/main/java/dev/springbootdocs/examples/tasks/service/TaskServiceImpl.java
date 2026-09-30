@@ -7,6 +7,7 @@ import dev.springbootdocs.examples.tasks.exception.TaskNotFoundException;
 import dev.springbootdocs.examples.tasks.exception.TaskVersionConflictException;
 import dev.springbootdocs.examples.tasks.model.Task;
 import dev.springbootdocs.examples.tasks.repository.TaskCommentRepository;
+import dev.springbootdocs.examples.tasks.repository.TaskJdbcRepository;
 import dev.springbootdocs.examples.tasks.repository.TaskRepository;
 import java.util.List;
 import org.springframework.data.domain.Sort;
@@ -18,10 +19,13 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final TaskCommentRepository taskCommentRepository;
+    private final TaskJdbcRepository taskJdbcRepository;
 
-    public TaskServiceImpl(TaskRepository taskRepository, TaskCommentRepository taskCommentRepository) {
+    public TaskServiceImpl(TaskRepository taskRepository, TaskCommentRepository taskCommentRepository,
+            TaskJdbcRepository taskJdbcRepository) {
         this.taskRepository = taskRepository;
         this.taskCommentRepository = taskCommentRepository;
+        this.taskJdbcRepository = taskJdbcRepository;
     }
 
     @Override
@@ -68,6 +72,12 @@ public class TaskServiceImpl implements TaskService {
         // La clave foránea no tiene ON DELETE CASCADE: primero los comentarios
         taskCommentRepository.deleteByTaskId(id);
         taskRepository.delete(task);
+    }
+
+    @Override
+    @Transactional
+    public int purgeCompleted(int days) {
+        return taskJdbcRepository.purgeCompleted(days);
     }
 
     private Task getTask(Long id) {

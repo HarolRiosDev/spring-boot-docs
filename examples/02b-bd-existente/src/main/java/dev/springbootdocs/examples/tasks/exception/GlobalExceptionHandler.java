@@ -9,6 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -27,6 +28,18 @@ public class GlobalExceptionHandler {
         }
         ValidationApiError error = ValidationApiError.of(
                 HttpStatus.BAD_REQUEST.value(), "Datos de la petición inválidos", fieldErrors);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    // Validación de parámetros sueltos (un @RequestParam con @Min, por ejemplo)
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ValidationApiError> handleParameterValidation(HandlerMethodValidationException ex) {
+        Map<String, String> paramErrors = new HashMap<>();
+        ex.getParameterValidationResults().forEach(result -> paramErrors.put(
+                result.getMethodParameter().getParameterName(),
+                result.getResolvableErrors().getFirst().getDefaultMessage()));
+        ValidationApiError error = ValidationApiError.of(
+                HttpStatus.BAD_REQUEST.value(), "Parámetros de la petición inválidos", paramErrors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 

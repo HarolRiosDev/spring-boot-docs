@@ -16,4 +16,6 @@ public interface TaskService {
     TaskResponse update(Long id, TaskUpdateRequest request);
 
     void delete(Long id);
+
+    int purgeCompleted(int days);
 }
