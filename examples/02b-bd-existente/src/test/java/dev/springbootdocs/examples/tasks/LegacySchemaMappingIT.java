@@ -77,7 +77,7 @@ class LegacySchemaMappingIT {
         JsonNode task = createTask(false);
 
         LocalDateTime inDatabase = column("FH_ALTA", LocalDateTime.class, task.get("id").asLong());
-        assertThat(LocalDateTime.parse(task.get("fechaAlta").asText())).isEqualTo(inDatabase);
+        assertThat(LocalDateTime.parse(task.get("fechaAlta").asString())).isEqualTo(inDatabase);
         assertThat(task.get("fechaModificacion").isNull()).isTrue();
     }
 
@@ -95,7 +95,7 @@ class LegacySchemaMappingIT {
 
         LocalDateTime inDatabase = column("FH_MODIFICACION", LocalDateTime.class, id);
         assertThat(inDatabase).isNotNull();
-        assertThat(LocalDateTime.parse(updated.get("fechaModificacion").asText())).isEqualTo(inDatabase);
+        assertThat(LocalDateTime.parse(updated.get("fechaModificacion").asString())).isEqualTo(inDatabase);
         // Hibernate escribe version + 1 y el trigger calcula lo mismo: una sola subida, no dos
         assertThat(updated.get("version").asInt()).isEqualTo(1);
         assertThat(column("NU_VERSION", Integer.class, id)).isEqualTo(1);
