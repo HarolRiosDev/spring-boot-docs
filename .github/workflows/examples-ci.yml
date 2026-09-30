@@ -23,6 +23,7 @@ jobs:
           - 00-hello-world
           - 01-fundamentos
           - 02-persistencia
+          - 02b-bd-existente
           - 03-security-jwt
           - 04-cache-redis
           - 05-kafka
