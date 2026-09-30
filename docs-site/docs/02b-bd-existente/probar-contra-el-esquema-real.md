@@ -12,7 +12,6 @@ En la [Fase 2](/docs/02-persistencia/probar-con-datos-reales) los tests usaban H
 El esquema heredado está escrito para Postgres, no para "SQL en general":
 
 - El trigger y la función de purga están en **PL/pgSQL**, que H2 no ejecuta.
-- El informe usa `COUNT(*) FILTER (WHERE ...)` y la función usa `make_interval`, que son de Postgres.
 - `CHAR(1)`, las secuencias y el plegado de nombres a minúsculas se comportan distinto en cada motor.
 
 Se podría escribir un segundo script "versión H2" del esquema, pero entonces los tests probarían ese segundo script, no el real, y las dos versiones acabarían siendo distintas sin que nadie lo notara. Con una base de datos heredada, la regla es simple: **los tests corren contra el mismo esquema, en el mismo motor**.
@@ -71,7 +70,7 @@ Aquí casi todo es `*IT`: lo único que se puede probar sin base de datos es el 
 La base de datos de los tests trae los datos semilla del DBA y la comparten todas las clases. Tres reglas para que los tests no dependan unos de otros:
 
 - **Cada test crea sus propios datos** y busca los suyos por id. Nada de "la lista tiene 6 elementos": otro test puede haber añadido o purgado tareas.
-- **Sin `@Transactional` en los tests.** Un test transaccional se deshace al terminar, pero nunca confirma nada, y aquí hay cosas que solo pasan de verdad al escribir: el trigger, la versión, las fechas que genera la base de datos.
+- **Sin `@Transactional` en los tests.** Con un test transaccional, el test y todas sus peticiones de MockMvc (que corren en el mismo hilo) comparten una sola transacción y un solo contexto de persistencia: un `PUT` reutilizaría la tarea que JPA ya tiene en memoria en vez de leer la fila, y el SQL de "la otra aplicación" correría dentro de nuestra propia transacción. Para probar la convivencia, cada escritura tiene que confirmarse como en producción.
 - **"Hoy" lo decide la base de datos.** El test del informe pregunta `SELECT current_date` en vez de usar `LocalDate.now()`, para no depender de la zona horaria de la JVM.
 
 Para simular a "la otra aplicación", el test escribe con SQL directo, igual que ella, sin pasar por la API:

@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
-// SQL que no encaja en entidades: un informe con SQL propio de Postgres y una función que ya existe en la BD
+// SQL que no encaja en entidades: un informe agregado y una función que ya existe en la BD
 @Repository
 public class TaskJdbcRepository {
 

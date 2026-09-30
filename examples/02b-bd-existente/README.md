@@ -80,7 +80,7 @@ El trigger ha subido la versión a 1. Un `PUT` con la versión que habías leíd
 
 ```bash
 curl -s -X PUT localhost:8080/tasks/1004 -H 'Content-Type: application/json' \
-  -d '{"titulo":"Mi versión","completada":false,"version":0}'
+  -d '{"titulo":"Mi cambio","completada":false,"version":0}'
 ```
 
 ```json

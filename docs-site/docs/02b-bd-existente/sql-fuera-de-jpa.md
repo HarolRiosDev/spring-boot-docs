@@ -12,7 +12,7 @@ JPA brilla leyendo y escribiendo entidades. No todo lo que necesitas de una base
 Cuántas tareas se crearon cada día y cuántas de ellas están completadas:
 
 ```java
-// SQL que no encaja en entidades: un informe con SQL propio de Postgres y una función que ya existe en la BD
+// SQL que no encaja en entidades: un informe agregado y una función que ya existe en la BD
 @Repository
 public class TaskJdbcRepository {
 
@@ -45,7 +45,7 @@ public record DailyTaskCount(LocalDate dia, long creadas, long completadas) {
 }
 ```
 
-- `COUNT(*) FILTER (WHERE ...)` es SQL de Postgres: cuenta solo las filas que cumplen la condición. No hay que traducirlo a JPQL ni a nada; es el SQL que escribirías en `psql`.
+- `COUNT(*) FILTER (WHERE ...)` cuenta solo las filas que cumplen la condición. Es SQL estándar, pero no todos los motores lo admiten (MySQL y SQL Server, por ejemplo, no); Postgres sí. No hay que traducirlo a JPQL ni a nada; es el SQL que escribirías en `psql`.
 - `.query(DailyTaskCount.class)` crea un `DailyTaskCount` por fila, emparejando cada columna del `SELECT` con el componente del `record` que se llama igual. Por eso los alias (`AS dia`, `AS creadas`…) coinciden con los nombres del `record`.
 - Es una clase `@Repository` normal: el servicio la usa igual que un repositorio de Spring Data, y el controlador no sabe si detrás hay JPA o SQL.
 
