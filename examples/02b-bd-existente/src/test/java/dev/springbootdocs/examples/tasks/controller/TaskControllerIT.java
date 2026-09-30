@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import dev.springbootdocs.examples.tasks.TestcontainersConfiguration;
+import dev.springbootdocs.examples.tasks.dto.CommentRequest;
 import dev.springbootdocs.examples.tasks.dto.TaskRequest;
 import dev.springbootdocs.examples.tasks.dto.TaskUpdateRequest;
 import org.junit.jupiter.api.Test;
@@ -122,6 +123,21 @@ class TaskControllerIT {
     @Test
     void deleteTask_returnsNoContent_andThenNotFound() throws Exception {
         long id = createTask("Para borrar");
+
+        mockMvc.perform(delete("/tasks/{id}", id))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/tasks/{id}", id))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deleteTask_withComments_deletesBoth() throws Exception {
+        long id = createTask("Con comentarios");
+        mockMvc.perform(post("/tasks/{id}/comments", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new CommentRequest("Un comentario"))))
+                .andExpect(status().isCreated());
 
         mockMvc.perform(delete("/tasks/{id}", id))
                 .andExpect(status().isNoContent());
