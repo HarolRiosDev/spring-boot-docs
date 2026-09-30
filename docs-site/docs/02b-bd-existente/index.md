@@ -31,9 +31,9 @@ Los prefijos son una convención muy extendida en esquemas de empresa: `TB_` tab
 
 1. [Mapear un esquema heredado](./mapear-esquema-heredado)
 2. [Flyway sobre una base de datos existente](./flyway-sobre-bd-existente)
-3. Vistas y convivencia con otras aplicaciones
-4. SQL fuera de JPA
-5. Probar contra el esquema real
+3. [Vistas y convivencia con otras aplicaciones](./vistas-y-convivencia)
+4. [SQL fuera de JPA](./sql-fuera-de-jpa)
+5. [Probar contra el esquema real](./probar-contra-el-esquema-real)
 
 ## Ejemplo ejecutable
 

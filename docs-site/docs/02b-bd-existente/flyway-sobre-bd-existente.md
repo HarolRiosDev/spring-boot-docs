@@ -46,7 +46,7 @@ El historial queda así:
 
 Por eso la primera migración propia es `V2__control_de_concurrencia.sql` y no `V1`: la versión 1 es el esquema heredado. Una migración con versión menor o igual que la del baseline no se ejecuta nunca en esta base de datos. Flyway no da ningún error; simplemente la salta.
 
-La `V2` del ejemplo añade una columna de versión a `TB_TAREA` y cambia el trigger para que la incremente. Para qué sirve se cuenta en Vistas y convivencia con otras aplicaciones.
+La `V2` del ejemplo añade una columna de versión a `TB_TAREA` y cambia el trigger para que la incremente. Para qué sirve se cuenta en [Vistas y convivencia con otras aplicaciones](./vistas-y-convivencia).
 
 ## Flyway va antes que Hibernate
 
