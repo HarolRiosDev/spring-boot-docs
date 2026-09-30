@@ -180,7 +180,7 @@ docker compose exec postgres psql -U legacy legacy \
 
 # Nuestro PUT con la versión que habíamos leído
 curl -s -X PUT localhost:8080/tasks/1004 -H 'Content-Type: application/json' \
-  -d '{"titulo":"Mi versión","completada":false,"version":0}'
+  -d '{"titulo":"Mi cambio","completada":false,"version":0}'
 ```
 
 ```json
@@ -216,4 +216,4 @@ public void delete(Long id) {
 
 ## Una limitación heredada: la línea `max + 1`
 
-El número de línea de un comentario nuevo es la última línea de esa tarea más uno, igual que en la aplicación antigua. Si dos personas comentan la misma tarea a la vez, las dos pueden calcular el mismo número. La clave primaria impide que se guarde un dato corrupto, pero una de las dos peticiones falla. Arreglarlo de verdad (con una secuencia o una columna de identidad) es un cambio de esquema que habría que acordar con el resto de equipos; mientras tanto, conviene saber que existe.
+El número de línea de un comentario nuevo es la última línea de esa tarea más uno, igual que en la aplicación antigua. Si dos personas comentan la misma tarea a la vez, las dos pueden calcular el mismo número. Como `TaskComment` implementa `Persistable` (se explica en [Mapear un esquema heredado](./mapear-esquema-heredado)), la segunda no pisa a la primera: la clave primaria rechaza su `INSERT` y esa petición falla. Arreglarlo de verdad (con una secuencia o una columna de identidad) es un cambio de esquema que habría que acordar con el resto de equipos; mientras tanto, conviene saber que existe.

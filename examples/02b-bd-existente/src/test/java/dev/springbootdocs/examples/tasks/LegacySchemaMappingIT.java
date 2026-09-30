@@ -1,14 +1,19 @@
 package dev.springbootdocs.examples.tasks;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import dev.springbootdocs.examples.tasks.dto.CommentRequest;
 import dev.springbootdocs.examples.tasks.dto.TaskRequest;
 import dev.springbootdocs.examples.tasks.dto.TaskUpdateRequest;
+import dev.springbootdocs.examples.tasks.model.TaskComment;
+import dev.springbootdocs.examples.tasks.model.TaskCommentId;
+import dev.springbootdocs.examples.tasks.repository.TaskCommentRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -16,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.web.servlet.MockMvc;
@@ -36,6 +42,9 @@ class LegacySchemaMappingIT {
 
     @Autowired
     private JdbcClient jdbcClient;
+
+    @Autowired
+    private TaskCommentRepository taskCommentRepository;
 
     private JsonNode createTask(boolean completada) throws Exception {
         String body = mockMvc.perform(post("/tasks")
@@ -117,6 +126,26 @@ class LegacySchemaMappingIT {
 
         long ourId = createTask(false).get("id").asLong();
         assertThat(ourId).isGreaterThan(theirId);
+    }
+
+    @Test
+    void commentWithAnExistingLine_failsInsteadOfOverwritingIt() throws Exception {
+        long taskId = createTask(false).get("id").asLong();
+        mockMvc.perform(post("/tasks/{id}/comments", taskId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new CommentRequest("El primero"))))
+                .andExpect(status().isCreated());
+
+        // Lo que haría una segunda petición que calculó la misma línea (max + 1) a la vez
+        assertThatThrownBy(() -> taskCommentRepository.saveAndFlush(
+                        new TaskComment(new TaskCommentId(taskId, 1), "El segundo")))
+                .isInstanceOf(DataIntegrityViolationException.class);
+
+        String texto = jdbcClient.sql("SELECT DS_TEXTO FROM TB_COMENTARIO_TAREA WHERE ID_TAREA = :id AND NU_LINEA = 1")
+                .param("id", taskId)
+                .query(String.class)
+                .single();
+        assertThat(texto).isEqualTo("El primero");
     }
 
     @Test

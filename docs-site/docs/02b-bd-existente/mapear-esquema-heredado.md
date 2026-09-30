@@ -149,7 +149,7 @@ Y la entidad lo usa como id con `@EmbeddedId`:
 ```java
 @Entity
 @Table(name = "TB_COMENTARIO_TAREA")
-public class TaskComment {
+public class TaskComment implements Persistable<TaskCommentId> {
 
     @EmbeddedId
     private TaskCommentId id;
@@ -175,6 +175,27 @@ public interface TaskCommentRepository extends JpaRepository<TaskComment, TaskCo
 }
 ```
 
-El número de línea lo calcula el servicio como la última línea de la tarea más uno, que es lo que hacía la aplicación antigua. Con un id que asigna la propia aplicación hay una consecuencia que conviene conocer: `save()` no tiene forma de saber si la entidad es nueva (el id ya viene relleno), así que hace un `merge`, que primero lanza un `SELECT` para buscarla y después el `INSERT`. En este ejemplo no importa. Si importara, la entidad puede implementar `Persistable<TaskCommentId>` y decir ella misma si es nueva.
+El número de línea lo calcula el servicio como la última línea de la tarea más uno, que es lo que hacía la aplicación antigua. Con un id que asigna la propia aplicación hay una trampa. `save()` no tiene forma de saber si la entidad es nueva (el id ya viene relleno), así que hace un `merge`: un `SELECT` por id y, si la fila no existe, el `INSERT`. Pero si la fila **ya existe**, `merge` no falla: copia los datos nuevos encima y lanza un `UPDATE`. Si dos peticiones calculan a la vez la misma línea, o si la otra aplicación acaba de usar ese número, el comentario nuevo pisaría en silencio el que ya estaba.
+
+La solución es que la entidad le diga a Spring Data cuándo es nueva, implementando `Persistable`:
+
+```java
+// El id lo asigna la aplicación: sin esto, save() haría merge y pisaría una línea que ya existe
+@Transient
+private boolean isNew = true;
+
+@Override
+public boolean isNew() {
+    return isNew;
+}
+
+@PostLoad
+@PostPersist
+void markNotNew() {
+    isNew = false;
+}
+```
+
+Un comentario recién construido es nuevo, así que `save()` hace `persist`: un `INSERT` directo, sin `SELECT` previo. Si esa línea ya existe, la clave primaria rechaza el `INSERT` y la petición falla, en vez de borrar el comentario de otro. Cuando JPA carga o guarda el comentario, `@PostLoad` y `@PostPersist` lo marcan como no nuevo. `LegacySchemaMappingIT` lo comprueba: guardar una línea repetida lanza una excepción y el texto original sigue en la base de datos.
 
 (La otra forma de mapear una clave compuesta es `@IdClass`, que deja los campos de la clave directamente en la entidad. `@EmbeddedId` agrupa la clave en un solo objeto y es la más habitual.)
