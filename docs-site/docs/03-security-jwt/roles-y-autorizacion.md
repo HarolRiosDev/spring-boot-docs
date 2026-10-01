@@ -77,3 +77,5 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 ```
 
 Se registran en `SecurityConfig` con `.exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(...).accessDeniedHandler(...))`. El 403 de una tarea ajena, en cambio, no pasa por aquí — lo lanza `TaskAccessDeniedException` desde el servicio, y lo captura `GlobalExceptionHandler` como cualquier otra excepción de negocio.
+
+Como estos dos componentes escriben la respuesta a mano, sin pasar por Spring MVC, tienen que fijar ellos mismos la codificación con `response.setCharacterEncoding(StandardCharsets.UTF_8)`. Si no lo hacen, Tomcat usa ISO-8859-1, el valor por defecto de la especificación Servlet, y un mensaje como "No autenticado o token inválido" llega con la tilde rota a cualquier cliente que lea el JSON como UTF-8. Los tests con MockMvc no lo detectan, porque su respuesta simulada ya escribe en UTF-8; el ejemplo lo comprueba con un servidor real en `SecurityErrorEncodingTest`.
