@@ -54,14 +54,28 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(), "Datos de la petición inválidos", fieldErrors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+
+    // JSON mal formado o un campo con un tipo que no encaja (p. ej. "completada": "quizás")
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiError> handleUnreadableBody(HttpMessageNotReadableException ex) {
+        ApiError error = ApiError.of(HttpStatus.BAD_REQUEST.value(),
+                "El cuerpo de la petición no es un JSON válido o tiene campos con un tipo incorrecto");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
 }
 ```
 
 Cada `@ExceptionHandler` intercepta un tipo de excepción concreto, lanzada desde *cualquier* controlador de la aplicación, y decide qué código de estado y qué cuerpo devolver.
 
+## Un cuerpo que no se puede leer
+
+Antes de validar nada, Spring tiene que convertir el JSON de la petición en un `TaskRequest`. Si no puede, porque el JSON está roto (`{"titulo": `) o porque un campo trae un tipo que no encaja (`"completada": "quizás"`), lanza una `HttpMessageNotReadableException` y `@Valid` ni siquiera llega a ejecutarse. El tercer manejador la convierte en un 400 con el mismo formato que los demás.
+
+Su mensaje es genérico a propósito. El de la excepción (`ex.getMessage()`) describe el fallo con detalles internos de Jackson y nombres de clases Java, que no le sirven al cliente y le cuentan más de la cuenta sobre cómo está hecha la aplicación.
+
 ## Un formato de error consistente
 
-Ambos manejadores devuelven una forma parecida (`status`, `message`, `timestamp`), para que quien consuma la API pueda parsear los errores de manera uniforme sin importar cuál ocurrió. Esta consistencia solo aplica a estos dos casos manejados explícitamente (`TaskNotFoundException` y `MethodArgumentNotValidException`): un error no contemplado aquí, como una ruta inexistente o un `GET /tasks/abc` con un id no numérico, cae en el manejo de errores por defecto de Spring, con una forma distinta.
+Los tres manejadores devuelven una forma parecida (`status`, `message`, `timestamp`), para que quien consuma la API pueda parsear los errores de manera uniforme sin importar cuál ocurrió. Esta consistencia solo aplica a los casos manejados explícitamente: un error no contemplado aquí, como una ruta inexistente o un `GET /tasks/abc` con un id no numérico, cae en el manejo de errores por defecto de Spring, con una forma distinta.
 
 ```java
 public record ApiError(int status, String message, String timestamp) { /* ... */ }

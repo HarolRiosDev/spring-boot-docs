@@ -88,6 +88,31 @@ class TaskControllerTest {
     }
 
     @Test
+    void createTask_withoutCompletada_createsPendingTask() throws Exception {
+        String token = registerAndLogin("zoe");
+
+        mockMvc.perform(post("/tasks")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"titulo\": \"Comprar pan\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.completada").value(false));
+    }
+
+    @Test
+    void createTask_withMalformedJson_returnsApiError() throws Exception {
+        String token = registerAndLogin("bruno");
+
+        mockMvc.perform(post("/tasks")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"titulo\": "))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").isNotEmpty());
+    }
+
+    @Test
     void listTasks_onlyReturnsOwnTasks_forRegularUser() throws Exception {
         String graceToken = registerAndLogin("grace");
         String henryToken = registerAndLogin("henry");

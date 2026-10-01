@@ -54,6 +54,25 @@ class TaskControllerIT {
     }
 
     @Test
+    void createTask_withoutCompletada_createsPendingTask() throws Exception {
+        mockMvc.perform(post("/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"titulo\": \"Sin completada\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.completada").value(false));
+    }
+
+    @Test
+    void createTask_withMalformedJson_returnsApiError() throws Exception {
+        mockMvc.perform(post("/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"titulo\": "))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").isNotEmpty());
+    }
+
+    @Test
     void createTask_withBlankTitulo_returnsBadRequest() throws Exception {
         mockMvc.perform(post("/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -99,6 +118,17 @@ class TaskControllerIT {
                 .andExpect(jsonPath("$.completada").value(true))
                 .andExpect(jsonPath("$.fechaModificacion").isNotEmpty())
                 .andExpect(jsonPath("$.version").value(1));
+    }
+
+    @Test
+    void updateTask_withoutCompletada_leavesTaskPending() throws Exception {
+        long id = createTask("Sin completada al actualizar");
+
+        mockMvc.perform(put("/tasks/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"titulo\": \"Actualizada\", \"version\": 0}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.completada").value(false));
     }
 
     @Test
