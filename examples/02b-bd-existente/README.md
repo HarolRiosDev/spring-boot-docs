@@ -65,7 +65,7 @@ curl -s localhost:8080/reports/tasks-per-day
 curl -s -X POST 'localhost:8080/tasks/purge?days=30'
 ```
 
-`completada` va siempre en el JSON: es un `boolean` y, si falta, Jackson rechaza la petición con un 400.
+`completada` es opcional: si no va en el JSON, la tarea queda pendiente (`false`), tanto al crearla como al actualizarla.
 
 ## Otra aplicación en la misma tabla: el 409
 

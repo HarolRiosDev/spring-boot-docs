@@ -12,11 +12,27 @@ Cuando un cliente envía datos incorrectos (por ejemplo, una tarea sin título),
 Las restricciones se declaran directamente en el objeto que representa la petición:
 
 ```java
-public record TaskRequest(@NotBlank String titulo, String descripcion, boolean completada) {
+public record TaskRequest(@NotBlank String titulo, String descripcion, Boolean completada) {
+
+    public TaskRequest {
+        if (completada == null) {
+            completada = false;
+        }
+    }
 }
 ```
 
 `@NotBlank` (de `jakarta.validation.constraints`) exige que `titulo` no sea `null`, ni una cadena vacía, ni solo espacios en blanco. Bean Validation ofrece muchas más: `@NotNull`, `@Size(min=, max=)`, `@Email`, `@Min`/`@Max`, etc.
+
+## Un campo opcional: `Boolean`, no `boolean`
+
+`completada` es opcional: quien crea una tarea normalmente solo manda el título, `{"titulo": "Comprar pan"}`. Por eso es `Boolean` (la clase envoltorio) y no el primitivo `boolean`.
+
+Un `boolean` no puede valer `null`, así que no tiene forma de representar "el cliente no lo envió". Jackson, la librería que convierte el JSON en el record, no se lo inventa: en Jackson 3, la versión que usa Spring Boot 4, la opción `FAIL_ON_NULL_FOR_PRIMITIVES` viene activada, y un campo primitivo que falta hace fallar la lectura del JSON entero. Una petición correcta acabaría en un 400. Muchos tutoriales escritos para Spring Boot 3 usan `boolean` sin problema porque Jackson 2 rellenaba el hueco con `false`.
+
+Con `Boolean`, el campo ausente llega como `null`, y el **constructor compacto** del record (el bloque `public TaskRequest { ... }`, que se ejecuta antes de asignar los campos) lo convierte en `false`. La tarea se crea pendiente, y el resto del código lee `request.completada()` como cualquier `boolean`, sin preocuparse de un `null` que ya no puede aparecer.
+
+En un `PUT` pasa lo mismo: si no se manda `completada`, la tarea queda pendiente, porque `PUT` sustituye la tarea entera por lo que llega.
 
 ## Activar la validación con `@Valid`
 

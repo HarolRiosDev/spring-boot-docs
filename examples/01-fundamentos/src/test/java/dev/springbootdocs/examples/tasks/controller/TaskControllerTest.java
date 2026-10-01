@@ -52,6 +52,15 @@ class TaskControllerTest {
     }
 
     @Test
+    void createTask_withoutCompletada_createsPendingTask() throws Exception {
+        mockMvc.perform(post("/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"titulo\": \"Comprar pan\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.completada").value(false));
+    }
+
+    @Test
     void createTask_withBlankTitulo_returnsBadRequest() throws Exception {
         String json = objectMapper.writeValueAsString(new TaskRequest("", "sin título", false));
 
@@ -60,6 +69,16 @@ class TaskControllerTest {
                         .content(json))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.titulo").exists());
+    }
+
+    @Test
+    void createTask_withMalformedJson_returnsApiError() throws Exception {
+        mockMvc.perform(post("/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"titulo\": "))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").isNotEmpty());
     }
 
     @Test

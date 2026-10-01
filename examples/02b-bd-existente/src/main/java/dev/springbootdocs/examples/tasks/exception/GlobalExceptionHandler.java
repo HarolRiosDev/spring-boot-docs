@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -55,5 +56,13 @@ public class GlobalExceptionHandler {
         ApiError error = ApiError.of(HttpStatus.CONFLICT.value(),
                 "La tarea cambió mientras se guardaba; vuelve a leerla antes de modificarla");
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    // JSON mal formado o un campo con un tipo que no encaja (p. ej. "completada": "quizás")
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiError> handleUnreadableBody(HttpMessageNotReadableException ex) {
+        ApiError error = ApiError.of(HttpStatus.BAD_REQUEST.value(),
+                "El cuerpo de la petición no es un JSON válido o tiene campos con un tipo incorrecto");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }
