@@ -181,7 +181,7 @@ Son dos páginas seguidas, y entre las dos deberían salir las cuatro tareas emp
 | `LIMIT 2 OFFSET 20` | 24, 23 |
 | `LIMIT 2 OFFSET 22` | 23, 21 |
 
-La 23 sale dos veces y la 22 no sale nunca. En otra sesión de la consola falló al revés (se repitió la 22 y faltó la 23), y contra PostgreSQL las dos consultas devolvieron las mismas dos tareas, 22 y 21. A ti te puede salir otra combinación, o incluso la correcta: ese es justo el problema, que no está garantizado.
+La 23 sale dos veces y la 22 no sale nunca. En otra sesión de la consola falló al revés (se repitió la 22 y faltó la 23), y contra PostgreSQL las dos consultas devolvieron las mismas dos tareas, 22 y 21. Si arrancaste con `docker compose`, puedes repetirlo en PostgreSQL desde `psql`: `docker compose exec postgres psql -U tasks tasks`. A ti te puede salir otra combinación, o incluso la correcta: ese es justo el problema, que no está garantizado.
 
 La solución es terminar el orden con un campo que no se repita nunca, el `id`:
 

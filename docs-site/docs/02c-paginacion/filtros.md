@@ -143,9 +143,13 @@ Los nombres de los atributos van como texto (`"completada"`, `"titulo"`): si te 
 
 ## `LIKE` y sus comodines
 
-En `LIKE`, dos caracteres tienen un significado especial: `%` es "cualquier texto" y `_`, "cualquier carácter". Si el texto que escribe el usuario se pega tal cual al patrón, buscar `%` se convierte en `%%%`, que encaja con todo: `?q=%` devolvería las 60 tareas. Lo mismo con `?q=_`.
+En `LIKE`, dos caracteres tienen un significado especial: `%` es "cualquier texto" y `_`, "cualquier carácter". Si el texto que escribe el usuario se pega tal cual al patrón, buscar `%` se convierte en `%%%`, que encaja con todo: buscar un `%` devolvería las 60 tareas. Lo mismo con `_`.
 
-Por eso `escaparLike` pone una barra delante de `%`, `_` y de la propia barra (esta, la primera, para no duplicar las que añaden las otras dos), y `cb.like(..., '\\')` le dice a la base de datos que la barra es el carácter de escape: el `escape '\'` del SQL de arriba. Con eso, `?q=%` encuentra solo la tarea que de verdad contiene un `%`:
+Por eso `escaparLike` pone una barra delante de `%`, `_` y de la propia barra (esta, la primera, para no duplicar las que añaden las otras dos), y `cb.like(..., '\\')` le dice a la base de datos que la barra es el carácter de escape: el `escape '\'` del SQL de arriba. Con eso, buscar un `%` encuentra solo la tarea que de verdad lo contiene. En la URL, ese `%` se escribe `%25`, porque `%` también es un carácter especial en las URLs (`%20`, por ejemplo, es un espacio):
+
+```bash
+curl "http://localhost:8080/tasks?q=%25"
+```
 
 ```json
 {
@@ -166,6 +170,8 @@ Por eso `escaparLike` pone una barra delante de `%`, `_` y de la propia barra (e
   }
 }
 ```
+
+Si escribes el `%` tal cual (`?q=%` o `?q=100%`), Tomcat no puede decodificar el parámetro: la petición no llega al controlador y la respuesta es un 400 con el formato de error por defecto de Spring Boot, no con `ApiError`.
 
 :::note[Mayúsculas con tilde y PostgreSQL]
 `lower()` lo ejecuta la base de datos, y en PostgreSQL depende de su configuración regional. Con la de la imagen oficial que usa `docker compose` (`en_US.utf8`), `lower('É')` es `é`, así que `?q=épica` encontraría "ÉPICA: …". En una base creada con la configuración regional `C`, `lower` no toca las letras con tilde y esa búsqueda no encontraría nada. Las tareas del ejemplo no dependen de esto. Buscar sin tener en cuenta las tildes (que `?q=epica` encuentre "épica") es otro problema, que en PostgreSQL se resuelve con la extensión `unaccent` y queda fuera de esta sección.

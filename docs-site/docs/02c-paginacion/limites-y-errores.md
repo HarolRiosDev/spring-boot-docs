@@ -30,6 +30,28 @@ Ninguno de estos casos es un error. Un número de página o un tamaño imposible
 }
 ```
 
+### Una página demasiado lejana
+
+Hay un caso que Spring no resuelve por su cuenta. Spring Data calcula el desplazamiento de la página (`page × size`) y no admite que pase de `Integer.MAX_VALUE` (2 147 483 647). Con `?page=99999999&size=100`, el repositorio lanzaría `InvalidDataAccessApiUsageException: Page offset exceeds Integer.MAX_VALUE (2147483647)`, y la respuesta sería un 500. El servicio lo comprueba antes de llamar al repositorio y devuelve una página vacía, igual que con `?page=999`:
+
+```java
+// Spring Data no admite desplazamientos (page * size) que no quepan en un int y lanzaría
+// una excepción, un 500. Una página tan lejana está vacía, igual que ?page=999
+private static boolean fueraDeRango(Pageable pageable) {
+    return pageable.getOffset() > Integer.MAX_VALUE;
+}
+```
+
+```java
+Pageable pagina = conDesempate(pageable);
+if (fueraDeRango(pagina)) {
+    return new PageImpl<>(List.of(), pagina, taskRepository.count(spec));
+}
+return taskRepository.findAll(spec, pagina);
+```
+
+`PageImpl` es la clase de Spring Data que implementa `Page`; aquí se construye a mano, sin contenido y con el total real (el `count` respeta los filtros). `/tasks/recientes` hace lo mismo con `SliceImpl` y `hasNext` a `false`.
+
 ### El tamaño máximo: `max-page-size`
 
 El caso que más importa es el primero. Sin límite, un cliente puede pedir `?size=1000000` y volver a tener el problema que la paginación venía a resolver. Spring trae un máximo de 2000, que para la mayoría de las APIs sigue siendo demasiado. El ejemplo lo baja a 100:
