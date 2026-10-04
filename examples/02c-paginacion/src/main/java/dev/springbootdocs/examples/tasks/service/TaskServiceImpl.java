@@ -10,6 +10,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,8 @@ public class TaskServiceImpl implements TaskService {
     // Campos por los que el cliente puede ordenar. Una List y no un Set.of,
     // porque el mensaje de error los enumera y Set.of no garantiza el orden
     private static final List<String> CAMPOS_ORDENABLES = List.of("fechaCreacion", "titulo", "completada", "id");
+
+    private static final Sort ORDEN_RECIENTES = Sort.by(Sort.Direction.DESC, "fechaCreacion", "id");
 
     private final TaskRepository taskRepository;
 
@@ -49,6 +52,13 @@ public class TaskServiceImpl implements TaskService {
             spec = spec.and(TaskSpecifications.tituloContiene(q.trim()));
         }
         return taskRepository.findAll(spec, conDesempate(pageable));
+    }
+
+    @Override
+    public Slice<Task> findRecientes(Pageable pageable) {
+        // El orden es parte del significado de "recientes": se ignora el sort del cliente
+        Pageable recientes = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), ORDEN_RECIENTES);
+        return taskRepository.findAllBy(recientes);
     }
 
     @Override

@@ -237,4 +237,39 @@ class TaskPaginationTest {
             assertThat(task.get("titulo").asString().toLowerCase(Locale.ROOT)).contains("informe");
         });
     }
+
+    @Test
+    void recientes_firstSlice_hasNextAndNoTotals() throws Exception {
+        JsonNode body = getJson(get("/tasks/recientes"));
+
+        assertThat(toList(body.get("content"))).hasSize(20);
+        assertThat(body.get("number").asInt()).isZero();
+        assertThat(body.get("size").asInt()).isEqualTo(20);
+        assertThat(body.get("hasNext").asBoolean()).isTrue();
+        assertThat(body.has("totalElements")).isFalse();
+        assertThat(body.has("page")).isFalse();
+        assertNewestFirst(toList(body.get("content")));
+    }
+
+    @Test
+    void recientes_withRoomForEverything_hasNoNext() throws Exception {
+        JsonNode body = getJson(get("/tasks/recientes").param("size", "100"));
+
+        assertThat(body.get("hasNext").asBoolean()).isFalse();
+    }
+
+    @Test
+    void recientes_pastTheEnd_isEmptyWithoutNext() throws Exception {
+        JsonNode body = getJson(get("/tasks/recientes").param("page", "999"));
+
+        assertThat(toList(body.get("content"))).isEmpty();
+        assertThat(body.get("hasNext").asBoolean()).isFalse();
+    }
+
+    @Test
+    void recientes_ignoresTheClientSort() throws Exception {
+        JsonNode body = getJson(get("/tasks/recientes").param("sort", "id,asc"));
+
+        assertNewestFirst(toList(body.get("content")));
+    }
 }

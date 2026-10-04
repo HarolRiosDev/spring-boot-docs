@@ -1,5 +1,6 @@
 package dev.springbootdocs.examples.tasks.controller;
 
+import dev.springbootdocs.examples.tasks.dto.SliceResponse;
 import dev.springbootdocs.examples.tasks.dto.TaskRequest;
 import dev.springbootdocs.examples.tasks.model.Task;
 import dev.springbootdocs.examples.tasks.service.TaskService;
@@ -43,6 +44,11 @@ public class TaskController {
             @SortDefault(sort = "fechaCreacion", direction = Sort.Direction.DESC) Pageable pageable) {
         // PagedModel da un JSON estable; un Page devuelto tal cual expone su estructura interna
         return new PagedModel<>(taskService.findAll(completada, q, pageable));
+    }
+
+    @GetMapping("/tasks/recientes")
+    public SliceResponse<Task> findRecientes(Pageable pageable) {
+        return SliceResponse.from(taskService.findRecientes(pageable));
     }
 
     @GetMapping("/tasks/{id}")
