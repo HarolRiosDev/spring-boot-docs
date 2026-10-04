@@ -4,7 +4,10 @@ import dev.springbootdocs.examples.tasks.dto.TaskRequest;
 import dev.springbootdocs.examples.tasks.model.Task;
 import dev.springbootdocs.examples.tasks.service.TaskService;
 import jakarta.validation.Valid;
-import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PagedModel;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,9 +33,13 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    // Spring construye el Pageable con ?page=, ?size= y ?sort=. @SortDefault y no
+    // @PageableDefault: este último fija size=10 aunque la configuración diga otra cosa
     @GetMapping("/tasks")
-    public List<Task> findAll() {
-        return taskService.findAll();
+    public PagedModel<Task> findAll(
+            @SortDefault(sort = "fechaCreacion", direction = Sort.Direction.DESC) Pageable pageable) {
+        // PagedModel da un JSON estable; un Page devuelto tal cual expone su estructura interna
+        return new PagedModel<>(taskService.findAll(pageable));
     }
 
     @GetMapping("/tasks/{id}")

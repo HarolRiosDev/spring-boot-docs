@@ -87,13 +87,13 @@ class TaskControllerTest {
     }
 
     @Test
-    void listTasks_includesCreatedTask() throws Exception {
+    void listTasks_showsTheNewestTaskFirst() throws Exception {
         Long id = createTaskAndGetId();
 
         mockMvc.perform(get("/tasks"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[?(@.id == " + id + ")].titulo").value("Comprar leche"));
+                .andExpect(jsonPath("$.content[0].id").value(id))
+                .andExpect(jsonPath("$.content[0].titulo").value("Comprar leche"));
     }
 
     @Test

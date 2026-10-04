@@ -4,7 +4,10 @@ import dev.springbootdocs.examples.tasks.dto.TaskRequest;
 import dev.springbootdocs.examples.tasks.exception.TaskNotFoundException;
 import dev.springbootdocs.examples.tasks.model.Task;
 import dev.springbootdocs.examples.tasks.repository.TaskRepository;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +28,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<Task> findAll() {
-        return taskRepository.findAll();
+    public Page<Task> findAll(Pageable pageable) {
+        return taskRepository.findAll(conDesempate(pageable));
     }
 
     @Override
@@ -50,5 +53,17 @@ public class TaskServiceImpl implements TaskService {
     public void delete(Long id) {
         Task task = findById(id);
         taskRepository.delete(task);
+    }
+
+    // Si dos tareas empatan en el campo de orden, la base de datos puede devolverlas en
+    // cualquier orden, y una tarea puede repetirse o perderse entre páginas. El id es
+    // único, así que añadirlo al final deja un orden estable. Va aquí y no en @SortDefault
+    // porque, si el cliente manda su propio sort, Spring descarta el de la anotación entero.
+    private Pageable conDesempate(Pageable pageable) {
+        Sort sort = pageable.getSort();
+        if (sort.getOrderFor("id") == null) {
+            sort = sort.and(Sort.by(Sort.Direction.DESC, "id"));
+        }
+        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
     }
 }
