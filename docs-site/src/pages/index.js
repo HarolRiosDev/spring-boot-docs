@@ -31,6 +31,12 @@ const PHASES = [
     to: '/docs/02b-bd-existente/',
   },
   {
+    icon: '🔢',
+    title: '2c. Paginación',
+    description: 'Paginar, ordenar y filtrar listados con Spring Data.',
+    to: '/docs/02c-paginacion/',
+  },
+  {
     icon: '🔐',
     title: '3. Seguridad y Auth',
     description: 'Spring Security, JWT, roles.',

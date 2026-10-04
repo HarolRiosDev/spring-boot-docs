@@ -26,6 +26,9 @@ Esta sección parte de la [Fase 2](/docs/02-persistencia/): entidades, repositor
 
 1. [Paginar y ordenar](./paginar-y-ordenar)
 2. [Límites y errores](./limites-y-errores)
+3. [Filtros](./filtros)
+4. [Slice vs Page](./slice-vs-page)
+5. [Probar la paginación](./probar-la-paginacion)
 
 ## Ejemplo ejecutable
 

@@ -23,6 +23,7 @@ Está pensado para alguien que **ya sabe Java** (POO, colecciones, algo de lambd
 | 1 | Fundamentos: DI, beans, REST, capas, validación, manejo de errores | `01-fundamentos` |
 | 2 | Persistencia: Spring Data JPA, Postgres, Flyway | `02-persistencia` |
 | 2b | Base de datos existente: esquemas heredados, Flyway con baseline, vistas, SQL con `JdbcClient` | `02b-bd-existente` |
+| 2c | Paginación: `Pageable`, ordenación estable, filtros con `Specification`, `Slice` | `02c-paginacion` |
 | 3 | Seguridad y Auth: Spring Security, JWT, roles | `03-security-jwt` |
 | 4 | Caché y Redis: Spring Cache, Redis, invalidación | `04-cache-redis` |
 | 5 | Mensajería: Kafka, productores/consumidores, notificaciones | `05-kafka` |

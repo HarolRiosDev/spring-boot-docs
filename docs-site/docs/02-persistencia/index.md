@@ -26,3 +26,7 @@ docker compose up -d
 ## ¿Y si la base de datos ya existe?
 
 Esta fase parte de una base de datos vacía que la aplicación crea y controla. Si te toca trabajar con una que ya existe, con nombres, triggers y funciones que no puedes cambiar, sigue con la sección [2b. Base de datos existente](/docs/02b-bd-existente/).
+
+## ¿Y si la lista crece?
+
+`GET /tasks` devuelve todas las tareas en cada petición. Con unas pocas no importa; con miles, deja de servir. La sección [2c. Paginación](/docs/02c-paginacion/) enseña a servirlas por páginas, ordenadas y con filtros.

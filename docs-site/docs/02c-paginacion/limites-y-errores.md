@@ -124,7 +124,7 @@ La comprobación distingue mayúsculas (`?sort=FechaCreacion` también es un 400
 
 ## Un parámetro con un tipo que no encaja
 
-Con los filtros de la página siguiente, `?completada=quizas` no se puede convertir en un `Boolean`. Spring lanza `MethodArgumentTypeMismatchException` y, por defecto, responde 400 con su propio formato de error, distinto del `ApiError` del resto de la API. Lo mismo pasa con `GET /tasks/abc`, donde `abc` no es un `Long`. Un handler más lo deja todo con el mismo formato:
+Con los [filtros](./filtros) de la página siguiente, `?completada=quizas` no se puede convertir en un `Boolean`. Spring lanza `MethodArgumentTypeMismatchException` y, por defecto, responde 400 con su propio formato de error, distinto del `ApiError` del resto de la API. Lo mismo pasa con `GET /tasks/abc`, donde `abc` no es un `Long`. Un handler más lo deja todo con el mismo formato:
 
 ```java
 // Un parámetro de la URL que no se puede convertir a su tipo: ?completada=quizas o /tasks/abc

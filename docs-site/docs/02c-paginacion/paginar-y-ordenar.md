@@ -47,7 +47,7 @@ public PagedModel<Task> findAll(
 }
 ```
 
-`completada` y `q` son los filtros, que se explican en su propia página. Los parámetros de la paginación son tres:
+`completada` y `q` son los filtros, que se explican en [Filtros](./filtros). Los parámetros de la paginación son tres:
 
 | Parámetro | Qué es | Por defecto |
 |---|---|---|
