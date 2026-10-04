@@ -8,6 +8,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -31,13 +32,16 @@ class TaskControllerTest {
         return objectMapper.writeValueAsString(new TaskRequest("Comprar leche", "2 litros", false));
     }
 
-    private Long createTaskAndGetId() throws Exception {
+    private JsonNode createTask() throws Exception {
         MvcResult result = mockMvc.perform(post("/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(validRequestJson()))
                 .andReturn();
-        String body = result.getResponse().getContentAsString();
-        return objectMapper.readTree(body).get("id").asLong();
+        return objectMapper.readTree(result.getResponse().getContentAsString());
+    }
+
+    private Long createTaskAndGetId() throws Exception {
+        return createTask().get("id").asLong();
     }
 
     @Test
@@ -48,7 +52,8 @@ class TaskControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.titulo").value("Comprar leche"))
-                .andExpect(jsonPath("$.completada").value(false));
+                .andExpect(jsonPath("$.completada").value(false))
+                .andExpect(jsonPath("$.fechaCreacion").isNotEmpty());
     }
 
     @Test
@@ -120,6 +125,19 @@ class TaskControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.titulo").value("Comprar pan"))
                 .andExpect(jsonPath("$.completada").value(true));
+    }
+
+    @Test
+    void updateTask_keepsFechaCreacion() throws Exception {
+        JsonNode created = createTask();
+        String updateJson = objectMapper.writeValueAsString(
+                new TaskRequest("Comprar pan", "integral", true));
+
+        mockMvc.perform(put("/tasks/{id}", created.get("id").asLong())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fechaCreacion").value(created.get("fechaCreacion").asString()));
     }
 
     @Test

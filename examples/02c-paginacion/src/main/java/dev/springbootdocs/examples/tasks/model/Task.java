@@ -6,6 +6,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.Instant;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "tasks")
@@ -22,6 +24,11 @@ public class Task {
 
     @Column(nullable = false)
     private boolean completada;
+
+    // Hibernate la rellena al insertar; updatable = false impide que un UPDATE la cambie
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private Instant fechaCreacion;
 
     protected Task() {
     }
@@ -58,5 +65,9 @@ public class Task {
 
     public void setCompletada(boolean completada) {
         this.completada = completada;
+    }
+
+    public Instant getFechaCreacion() {
+        return fechaCreacion;
     }
 }
