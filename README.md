@@ -15,6 +15,7 @@ Sitio de documentación para aprender Spring Boot desde cero, en español, con u
 | [`01-fundamentos`](examples/01-fundamentos/) | API REST de tareas: capas, validación, errores | JDK 21 |
 | [`02-persistencia`](examples/02-persistencia/) | Spring Data JPA, PostgreSQL, Flyway | JDK 21 (Docker opcional) |
 | [`02b-bd-existente`](examples/02b-bd-existente/) | Base de datos heredada: mapeo, Flyway con baseline, vistas, SQL con `JdbcClient` | JDK 21 y Docker |
+| [`02c-paginacion`](examples/02c-paginacion/) | Paginación, ordenación y filtros con `Pageable` y `Specification` | JDK 21 (Docker opcional) |
 | [`03-security-jwt`](examples/03-security-jwt/) | Spring Security, JWT, roles | JDK 21 (Docker opcional) |
 | [`04-cache-redis`](examples/04-cache-redis/) | Spring Cache con Redis | JDK 21 (Docker opcional) |
 | [`05-kafka`](examples/05-kafka/) | Productores y consumidores con Kafka | JDK 21 (Docker opcional) |

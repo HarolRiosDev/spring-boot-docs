@@ -24,6 +24,7 @@ jobs:
           - 01-fundamentos
           - 02-persistencia
           - 02b-bd-existente
+          - 02c-paginacion
           - 03-security-jwt
           - 04-cache-redis
           - 05-kafka

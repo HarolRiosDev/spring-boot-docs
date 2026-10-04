@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: 02c-paginacion
+  datasource:
+    url: jdbc:postgresql://localhost:5440/tasks
+    username: tasks
+    password: tasks
+  flyway:
+    enabled: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  data:
+    web:
+      pageable:
+        # Un cliente que pida size=5000 recibe páginas de 100, sin error
+        max-page-size: 100
