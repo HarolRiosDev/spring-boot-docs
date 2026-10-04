@@ -5,13 +5,16 @@ import dev.springbootdocs.examples.tasks.exception.InvalidSortException;
 import dev.springbootdocs.examples.tasks.exception.TaskNotFoundException;
 import dev.springbootdocs.examples.tasks.model.Task;
 import dev.springbootdocs.examples.tasks.repository.TaskRepository;
+import dev.springbootdocs.examples.tasks.repository.TaskSpecifications;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 public class TaskServiceImpl implements TaskService {
@@ -34,9 +37,18 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Page<Task> findAll(Pageable pageable) {
+    public Page<Task> findAll(Boolean completada, String q, Pageable pageable) {
         validarOrden(pageable.getSort());
-        return taskRepository.findAll(conDesempate(pageable));
+
+        // Se empieza sin condiciones y se añade solo lo que venga en la petición
+        Specification<Task> spec = Specification.unrestricted();
+        if (completada != null) {
+            spec = spec.and(TaskSpecifications.conCompletada(completada));
+        }
+        if (StringUtils.hasText(q)) {
+            spec = spec.and(TaskSpecifications.tituloContiene(q.trim()));
+        }
+        return taskRepository.findAll(spec, conDesempate(pageable));
     }
 
     @Override

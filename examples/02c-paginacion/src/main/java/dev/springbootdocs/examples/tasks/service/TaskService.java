@@ -9,7 +9,7 @@ public interface TaskService {
 
     Task create(TaskRequest request);
 
-    Page<Task> findAll(Pageable pageable);
+    Page<Task> findAll(Boolean completada, String q, Pageable pageable);
 
     Task findById(Long id);
 

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -37,9 +38,11 @@ public class TaskController {
     // @PageableDefault: este último fija size=10 aunque la configuración diga otra cosa
     @GetMapping("/tasks")
     public PagedModel<Task> findAll(
+            @RequestParam(required = false) Boolean completada,
+            @RequestParam(required = false) String q,
             @SortDefault(sort = "fechaCreacion", direction = Sort.Direction.DESC) Pageable pageable) {
         // PagedModel da un JSON estable; un Page devuelto tal cual expone su estructura interna
-        return new PagedModel<>(taskService.findAll(pageable));
+        return new PagedModel<>(taskService.findAll(completada, q, pageable));
     }
 
     @GetMapping("/tasks/{id}")

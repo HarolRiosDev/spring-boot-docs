@@ -3,6 +3,7 @@ package dev.springbootdocs.examples.tasks.controller;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -152,5 +153,88 @@ class TaskPaginationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(
                         "No se puede ordenar por 'sideways'. Campos permitidos: fechaCreacion, titulo, completada, id"));
+    }
+
+    @Test
+    void listTasks_withNonBooleanCompletada_returnsApiError() throws Exception {
+        mockMvc.perform(get("/tasks").param("completada", "quizas"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("El parámetro 'completada' tiene un valor no válido: 'quizas'"));
+    }
+
+    @Test
+    void listTasks_filteredByCompletada_returnsOnlyCompletedTasks() throws Exception {
+        mockMvc.perform(get("/tasks").param("completada", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isNotEmpty())
+                .andExpect(jsonPath("$.content[?(@.completada == false)]").isEmpty());
+    }
+
+    @Test
+    void listTasks_withEmptyCompletada_doesNotFilter() throws Exception {
+        long sinFiltro = getJson(get("/tasks")).get("page").get("totalElements").asLong();
+
+        JsonNode body = getJson(get("/tasks").param("completada", ""));
+
+        assertThat(body.get("page").get("totalElements").asLong()).isEqualTo(sinFiltro);
+    }
+
+    @Test
+    void listTasks_searchingInTitle_ignoresCase() throws Exception {
+        JsonNode body = getJson(get("/tasks").param("q", "INFORME"));
+
+        List<JsonNode> tasks = toList(body.get("content"));
+        assertThat(tasks).isNotEmpty();
+        assertThat(tasks).allSatisfy(task ->
+                assertThat(task.get("titulo").asString().toLowerCase(Locale.ROOT)).contains("informe"));
+    }
+
+    @Test
+    void listTasks_searchingWithSurroundingSpaces_trimsTheText() throws Exception {
+        long exacto = getJson(get("/tasks").param("q", "informe")).get("page").get("totalElements").asLong();
+
+        JsonNode body = getJson(get("/tasks").param("q", "  informe  "));
+
+        assertThat(body.get("page").get("totalElements").asLong()).isEqualTo(exacto);
+    }
+
+    @Test
+    void listTasks_searchingOnlySpaces_doesNotFilter() throws Exception {
+        long sinFiltro = getJson(get("/tasks")).get("page").get("totalElements").asLong();
+
+        JsonNode body = getJson(get("/tasks").param("q", "   "));
+
+        assertThat(body.get("page").get("totalElements").asLong()).isEqualTo(sinFiltro);
+    }
+
+    @Test
+    void listTasks_searchingPercent_matchesItLiterally() throws Exception {
+        JsonNode body = getJson(get("/tasks").param("q", "%"));
+
+        List<JsonNode> tasks = toList(body.get("content"));
+        assertThat(tasks).isNotEmpty();
+        assertThat(tasks).allSatisfy(task -> assertThat(task.get("titulo").asString()).contains("%"));
+    }
+
+    @Test
+    void listTasks_searchingUnderscore_matchesItLiterally() throws Exception {
+        JsonNode body = getJson(get("/tasks").param("q", "_"));
+
+        List<JsonNode> tasks = toList(body.get("content"));
+        assertThat(tasks).isNotEmpty();
+        assertThat(tasks).allSatisfy(task -> assertThat(task.get("titulo").asString()).contains("_"));
+    }
+
+    @Test
+    void listTasks_combiningFilters_appliesBoth() throws Exception {
+        JsonNode body = getJson(get("/tasks").param("completada", "false").param("q", "informe"));
+
+        List<JsonNode> tasks = toList(body.get("content"));
+        assertThat(tasks).isNotEmpty();
+        assertThat(tasks).allSatisfy(task -> {
+            assertThat(task.get("completada").asBoolean()).isFalse();
+            assertThat(task.get("titulo").asString().toLowerCase(Locale.ROOT)).contains("informe");
+        });
     }
 }
