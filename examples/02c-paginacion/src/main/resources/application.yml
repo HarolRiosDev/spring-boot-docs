@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: 02c-paginacion
+  datasource:
+    url: jdbc:postgresql://localhost:5440/tasks
+    username: tasks
+    password: tasks
+  flyway:
+    enabled: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
