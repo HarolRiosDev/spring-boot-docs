@@ -8,9 +8,11 @@ import dev.springbootdocs.examples.tasks.repository.TaskRepository;
 import dev.springbootdocs.examples.tasks.repository.TaskSpecifications;
 import java.util.List;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -51,13 +53,21 @@ public class TaskServiceImpl implements TaskService {
         if (StringUtils.hasText(q)) {
             spec = spec.and(TaskSpecifications.tituloContiene(q.trim()));
         }
-        return taskRepository.findAll(spec, conDesempate(pageable));
+
+        Pageable pagina = conDesempate(pageable);
+        if (fueraDeRango(pagina)) {
+            return new PageImpl<>(List.of(), pagina, taskRepository.count(spec));
+        }
+        return taskRepository.findAll(spec, pagina);
     }
 
     @Override
     public Slice<Task> findRecientes(Pageable pageable) {
         // El orden es parte del significado de "recientes": se ignora el sort del cliente
         Pageable recientes = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), ORDEN_RECIENTES);
+        if (fueraDeRango(recientes)) {
+            return new SliceImpl<>(List.of(), recientes, false);
+        }
         return taskRepository.findAllBy(recientes);
     }
 
@@ -82,6 +92,12 @@ public class TaskServiceImpl implements TaskService {
     public void delete(Long id) {
         Task task = findById(id);
         taskRepository.delete(task);
+    }
+
+    // Spring Data no admite desplazamientos (page * size) que no quepan en un int y lanzaría
+    // una excepción, un 500. Una página tan lejana está vacía, igual que ?page=999
+    private static boolean fueraDeRango(Pageable pageable) {
+        return pageable.getOffset() > Integer.MAX_VALUE;
     }
 
     private void validarOrden(Sort sort) {

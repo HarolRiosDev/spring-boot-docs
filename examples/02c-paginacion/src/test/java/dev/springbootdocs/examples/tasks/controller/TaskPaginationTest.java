@@ -131,6 +131,16 @@ class TaskPaginationTest {
         assertThat(body.get("page").get("totalElements").asLong()).isGreaterThanOrEqualTo(60);
     }
 
+    // page * size no cabe en un int: sin protección, Spring Data lanzaría una excepción (un 500)
+    @Test
+    void listTasks_withAPageBeyondIntegerOffsets_returnsEmptyContentWithTotals() throws Exception {
+        JsonNode body = getJson(get("/tasks").param("page", "99999999").param("size", "100"));
+
+        assertThat(toList(body.get("content"))).isEmpty();
+        assertThat(body.get("page").get("number").asInt()).isEqualTo(99999999);
+        assertThat(body.get("page").get("totalElements").asLong()).isGreaterThanOrEqualTo(60);
+    }
+
     @Test
     void listTasks_sortedByUnknownField_returnsApiError() throws Exception {
         mockMvc.perform(get("/tasks").param("sort", "noexiste"))
@@ -261,6 +271,14 @@ class TaskPaginationTest {
     @Test
     void recientes_pastTheEnd_isEmptyWithoutNext() throws Exception {
         JsonNode body = getJson(get("/tasks/recientes").param("page", "999"));
+
+        assertThat(toList(body.get("content"))).isEmpty();
+        assertThat(body.get("hasNext").asBoolean()).isFalse();
+    }
+
+    @Test
+    void recientes_withAPageBeyondIntegerOffsets_isEmptyWithoutNext() throws Exception {
+        JsonNode body = getJson(get("/tasks/recientes").param("page", "99999999").param("size", "100"));
 
         assertThat(toList(body.get("content"))).isEmpty();
         assertThat(body.get("hasNext").asBoolean()).isFalse();
