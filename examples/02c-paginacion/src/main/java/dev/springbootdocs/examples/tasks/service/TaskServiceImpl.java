@@ -1,9 +1,11 @@
 package dev.springbootdocs.examples.tasks.service;
 
 import dev.springbootdocs.examples.tasks.dto.TaskRequest;
+import dev.springbootdocs.examples.tasks.exception.InvalidSortException;
 import dev.springbootdocs.examples.tasks.exception.TaskNotFoundException;
 import dev.springbootdocs.examples.tasks.model.Task;
 import dev.springbootdocs.examples.tasks.repository.TaskRepository;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TaskServiceImpl implements TaskService {
+
+    // Campos por los que el cliente puede ordenar. Una List y no un Set.of,
+    // porque el mensaje de error los enumera y Set.of no garantiza el orden
+    private static final List<String> CAMPOS_ORDENABLES = List.of("fechaCreacion", "titulo", "completada", "id");
 
     private final TaskRepository taskRepository;
 
@@ -29,6 +35,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Page<Task> findAll(Pageable pageable) {
+        validarOrden(pageable.getSort());
         return taskRepository.findAll(conDesempate(pageable));
     }
 
@@ -53,6 +60,14 @@ public class TaskServiceImpl implements TaskService {
     public void delete(Long id) {
         Task task = findById(id);
         taskRepository.delete(task);
+    }
+
+    private void validarOrden(Sort sort) {
+        for (Sort.Order order : sort) {
+            if (!CAMPOS_ORDENABLES.contains(order.getProperty())) {
+                throw new InvalidSortException(order.getProperty(), CAMPOS_ORDENABLES);
+            }
+        }
     }
 
     // Si dos tareas empatan en el campo de orden, la base de datos puede devolverlas en

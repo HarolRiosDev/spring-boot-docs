@@ -129,4 +129,28 @@ class TaskPaginationTest {
         assertThat(body.get("page").get("number").asInt()).isEqualTo(999);
         assertThat(body.get("page").get("totalElements").asLong()).isGreaterThanOrEqualTo(60);
     }
+
+    @Test
+    void listTasks_sortedByUnknownField_returnsApiError() throws Exception {
+        mockMvc.perform(get("/tasks").param("sort", "noexiste"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value(
+                        "No se puede ordenar por 'noexiste'. Campos permitidos: fechaCreacion, titulo, completada, id"));
+    }
+
+    @Test
+    void listTasks_sortedByFieldOutsideTheList_returnsBadRequest() throws Exception {
+        mockMvc.perform(get("/tasks").param("sort", "descripcion"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400));
+    }
+
+    @Test
+    void listTasks_withMisspelledDirection_returnsBadRequestNamingIt() throws Exception {
+        mockMvc.perform(get("/tasks").param("sort", "titulo,sideways"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(
+                        "No se puede ordenar por 'sideways'. Campos permitidos: fechaCreacion, titulo, completada, id"));
+    }
 }

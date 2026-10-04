@@ -114,6 +114,14 @@ class TaskControllerTest {
     }
 
     @Test
+    void getTaskById_withNonNumericId_returnsApiError() throws Exception {
+        mockMvc.perform(get("/tasks/abc"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("El parámetro 'id' tiene un valor no válido: 'abc'"));
+    }
+
+    @Test
     void updateTask_whenExists_returnsUpdatedTask() throws Exception {
         Long id = createTaskAndGetId();
         String updateJson = objectMapper.writeValueAsString(
