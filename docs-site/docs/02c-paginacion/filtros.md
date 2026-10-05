@@ -145,7 +145,7 @@ Los nombres de los atributos van como texto (`"completada"`, `"titulo"`): si te 
 
 En `LIKE`, dos caracteres tienen un significado especial: `%` es "cualquier texto" y `_`, "cualquier carácter". Si el texto que escribe el usuario se pega tal cual al patrón, buscar `%` se convierte en `%%%`, que encaja con todo: buscar un `%` devolvería las 60 tareas. Lo mismo con `_`.
 
-Por eso `escaparLike` pone una barra delante de `%`, `_` y de la propia barra (esta, la primera, para no duplicar las que añaden las otras dos), y `cb.like(..., '\\')` le dice a la base de datos que la barra es el carácter de escape: el `escape '\'` del SQL de arriba. Con eso, buscar un `%` encuentra solo la tarea que de verdad lo contiene. En la URL, ese `%` se escribe `%25`, porque `%` también es un carácter especial en las URLs (`%20`, por ejemplo, es un espacio):
+Por eso `escaparLike` pone una barra invertida delante de cada `%` y de cada `_`. También delante de las barras que ya traiga el texto, y eso lo hace primero: si lo hiciera al final, duplicaría también las barras que acaba de añadir. Luego, `cb.like(..., '\\')` le dice a la base de datos que la barra es el carácter de escape: es el `escape '\'` del SQL de arriba. Con eso, buscar un `%` encuentra solo la tarea que de verdad lo contiene. En la URL, ese `%` se escribe `%25`, porque `%` también es un carácter especial en las URLs (`%20`, por ejemplo, es un espacio):
 
 ```bash
 curl "http://localhost:8080/tasks?q=%25"

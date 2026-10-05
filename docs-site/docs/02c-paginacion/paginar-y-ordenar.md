@@ -115,19 +115,19 @@ La primera petición, `?size=3`, devuelve esto:
   "first": true,
   "last": false,
   "number": 0,
-  "numberOfElements": 2,
+  "numberOfElements": 3,
   "pageable": {
     "offset": 0,
     "pageNumber": 0,
-    "pageSize": 2,
+    "pageSize": 3,
     "paged": true,
-    "sort": { "empty": true, "sorted": false, "unsorted": true },
+    "sort": { "empty": false, "sorted": true, "unsorted": false },
     "unpaged": false
   },
-  "size": 2,
-  "sort": { "empty": true, "sorted": false, "unsorted": true },
+  "size": 3,
+  "sort": { "empty": false, "sorted": true, "unsorted": false },
   "totalElements": 60,
-  "totalPages": 30
+  "totalPages": 20
 }
 ```
 

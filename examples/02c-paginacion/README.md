@@ -48,11 +48,13 @@ Parámetros de `GET /tasks`, todos opcionales:
 |---|---|---|
 | `page` | Número de página, empieza en 0 | `0` |
 | `size` | Tamaño de página; lo que pase de 100 se recorta a 100 | `20` |
-| `sort` | `campo`, `campo,asc` o `campo,desc` (se puede repetir). Campos: `fechaCreacion`, `titulo`, `completada`, `id` | `fechaCreacion,desc` |
+| `sort` | `campo`, `campo,asc` o `campo,desc` (se puede repetir). Campos: `fechaCreacion`, `titulo`, `completada`, `id` | `fechaCreacion,desc` (desempate abajo) |
 | `completada` | `true` o `false` | sin filtro |
 | `q` | Texto que debe aparecer en el título, sin distinguir mayúsculas | sin filtro |
 
-`GET /tasks/recientes` acepta `page` y `size`; el orden es siempre el de las más recientes.
+Si el `sort` no incluye `id`, se añade siempre `id,desc` al final como desempate: si dos tareas empatan en el campo de orden, sin él una podría repetirse o perderse entre páginas. Así, el orden por defecto es en realidad `fechaCreacion,desc` + `id,desc`.
+
+`GET /tasks/recientes` acepta `page` y `size`; el orden es siempre el de las más recientes (`fechaCreacion,desc` + `id,desc`).
 
 ## Probar con `curl`
 

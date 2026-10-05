@@ -16,7 +16,12 @@ select count(t1_0.id) from tasks t1_0
 
 Con 60 filas, el `COUNT` es gratis. Con millones, y con filtros, puede costar más que la propia página: para contar, la base de datos tiene que recorrer todas las filas que cumplen el `WHERE`, no solo las 20 que vas a enseñar. Y lo repite en cada página.
 
-Spring Data se ahorra el `COUNT` cuando puede deducir el total: si la primera página no se llena, el total es lo que trae. Por eso `?size=5000` (60 tareas en una página de 100) o `?completada=false&q=informe` (3 resultados) lanzan una sola consulta. Pero en el caso normal, con más filas que el tamaño de página, el `COUNT` va en cada petición.
+Spring Data se ahorra el `COUNT` cuando puede deducir el total de las filas que ya tiene, es decir, cuando una página trae algo pero no se llena:
+
+- Si es la primera, el total es lo que trae. Por eso `?size=5000` (60 tareas en una página de 100) o `?completada=false&q=informe` (3 resultados) lanzan una sola consulta.
+- Si es otra, el total es lo que se ha saltado más lo que trae. `?size=7&page=8` se salta 56 tareas y trae las 4 últimas: 60, sin contar.
+
+En el resto de casos hay `COUNT`: en cualquier página llena (aunque sea la última, como `?size=3&page=19`) y en una página vacía más allá del final, porque sin filas no hay de dónde deducir el total.
 
 ## `Slice`: solo "¿hay más?"
 
@@ -103,7 +108,7 @@ En la última página, `hasNext` pasa a `false`: es la señal para que el client
 
 | | `Page` | `Slice` |
 |---|---|---|
-| Consultas por página | 2 (filas + `COUNT`) | 1 |
+| Consultas por página | 2 (filas + `COUNT`); 1 si trae filas pero no se llena | 1 |
 | Sabe el total | Sí | No, solo si hay siguiente |
 | Encaja con | Un paginador con números ("página 3 de 12"), "60 resultados" | "Cargar más", *scroll* infinito, *feeds* |
 

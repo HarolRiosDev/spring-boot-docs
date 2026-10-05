@@ -36,7 +36,7 @@ logging:
     org.hibernate.SQL: debug
 ```
 
-Con eso puedes comprobar lo que cuentan las páginas anteriores: el `order by … id desc` del desempate, el `like ? escape '\'` de los filtros, el `COUNT` de cada `Page` y la consulta única del `Slice`.
+Con eso puedes comprobar lo que cuentan las páginas anteriores: el `order by … id desc` del desempate, el `like ? escape '\'` de los filtros, el `COUNT` de los `Page` (y las páginas en las que Spring Data se lo ahorra) y la consulta única del `Slice`.
 
 ## Los tests
 
